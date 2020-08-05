@@ -1,10 +1,12 @@
 import React from 'react';
 import axios from 'axios'
+import './reset.css'
 import './App.css'
 
 class App extends React.Component {
   state = {
-    photos: []
+    photos: [],
+    columns: 6
   }
 
   componentDidMount() {
@@ -18,14 +20,16 @@ class App extends React.Component {
   renderPhotos = () => {
     return this.state.photos.map((photo, i) => {
       return (
-        <img key={i} src={photo.rawUrl} alt={photo.filename} />
+        <div className="photo">
+          <img key={i} src={photo.rawUrl} alt={photo.filename} />
+        </div>
       )
     });
   }
 
   render() {
     return (
-      <div className="gallery">
+      <div className={`gallery gallery-${this.state.columns}`}>
         {this.renderPhotos()}
       </div>
     );
