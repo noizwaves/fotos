@@ -55,7 +55,8 @@ app.get('/api/photos', cors(corsOptions), (req, res) => {
     const photoJson = photos.map(p => {
         return {
             filename: p.filename,
-            rawUrl: `http://localhost:3001/raw/${p.relativePath}`
+            rawUrl: `http://localhost:3001/raw/${p.relativePath}`,
+            date: { year: p.year, month: p.month, day: p.day }
         }
     })
 
