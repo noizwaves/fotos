@@ -51,6 +51,7 @@ getFiles(galleryPath)
 
         console.log(`Found ${photos.length} photos, generating thumbnails...`)
 
+        // TODO: handle the async return from this properly...
         photos.forEach(generateThumbnail)
 
         console.log('Thumbnails generated')

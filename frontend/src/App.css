@@ -63,3 +63,19 @@
 .gallery.gallery-6 > .photo > img {
     max-height: calc(100vw/6 - 2px);
 }
+
+/* Showcase */
+.showcase {
+    width: calc(100vw);
+    height: calc(100vh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.showcase > img {
+    max-width: calc(100vw - 60px);
+    max-height: calc(100vh - 60px);
+}
