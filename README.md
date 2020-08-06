@@ -13,8 +13,6 @@ A lightweight photo viewer inspired by iCloud Photos.
 1.  Start container locally
     ```
     $ docker run \
-        -e GALLERY_PATH=/gallery/ \
-        -e THUMBNAILS_PATH=/thumbnails/ \
         -p 3000:3000 \
         -v /home/adam/Pictures/iCloud_Photos:/gallery:ro \
         -v /home/adam/workspace/fotos/thumbnails:/thumbnails \
@@ -23,4 +21,4 @@ A lightweight photo viewer inspired by iCloud Photos.
         --rm \
         fotos_dev:latest
     ```
-1.  Open [fotos](http://localhost:3000/api/photos)
+1.  Open [fotos](http://localhost:3000/)
