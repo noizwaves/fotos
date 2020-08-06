@@ -17,7 +17,7 @@ async function getFiles(dir) {
   return Array.prototype.concat(...files);
 }
 
-const PHOTO_REGEX = new RegExp("^(?<year>[\\d]{4})\\/(?<month>[\\d]{1,2})\\/(?<day>[\\d]{1,2})\\/(?<filename>.*)$", '')
+const PHOTO_REGEX = new RegExp("^(?<year>[\\d]{4})\\/(?<month>[\\d]{1,2})\\/(?<day>[\\d]{1,2})\\/(?<filename>.*\.(jpg|png))$", 'i')
 
 class Photo {
     constructor(relativePath) {
@@ -47,7 +47,6 @@ getFiles(galleryPath)
             .reverse()
             .filter(path => PHOTO_REGEX.test(path))
             .map(path => new Photo(path))
-            .filter((_, i) => i < 200)
 
         console.log(`Found ${photos.length} photos, generating thumbnails...`)
 

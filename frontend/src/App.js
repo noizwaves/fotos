@@ -1,5 +1,12 @@
 import React from 'react';
 import axios from 'axios'
+import {
+  List,
+  AutoSizer,
+  CellMeasurer,
+  CellMeasurerCache,
+} from 'react-virtualized'
+
 import './reset.css'
 import './App.css'
 
@@ -13,6 +20,11 @@ function groupBy(keyFunc, items) {
 }
 
 class App extends React.Component {
+  cache = new CellMeasurerCache({
+    fixedWidth: true,
+    defaultHeight: 200,
+  })
+
   state = {
     photosBy: [],
     columns: 6,
@@ -28,24 +40,53 @@ class App extends React.Component {
   }
 
   renderPhotosBy = () => {
-    return this.state.photosBy.map(({key, items}, i) => {
+    const renderGallery = ({ key, index, style, parent }) => {
+      const items = this.state.photosBy[index].items
+      const date = this.state.photosBy[index].key
+
       const photos = items.map((photo, k) => {
         return (
-            <div key={`${i}-${k}`} className="photo">
+            <div key={`${index}-${k}`} className="photo">
               <img src={photo.thumbnailUrl} alt={photo.filename} onClick={this.selectPhoto(photo)} />
             </div>
         )
       })
 
       return (
-          <>
-            <h2>{key}</h2>
-            <div key={i} className={`gallery gallery-${this.state.columns}`}>
-              {photos}
+          <CellMeasurer key={key} cache={this.cache} parent={parent} columnIndex={0} rowIndex={index}>
+            <div style={style}>
+              <h2>{date}</h2>
+              <div key={index} className={`gallery gallery-${this.state.columns}`}>
+                {photos}
+              </div>
             </div>
-          </>
+          </CellMeasurer>
       )
-    });
+    }
+
+    const renderGalleries = (width, height) => {
+      return (
+          <List
+              width={width}
+              height={height}
+              rowHeight={this.cache.rowHeight}
+              deferredMeasurementCache={this.cache}
+              rowCount={this.state.photosBy.length}
+              rowRenderer={renderGallery}
+          >
+          </List>
+      )
+    }
+
+    return (
+        <div style={{ width: "100%", height: "100vh" }}>
+          <AutoSizer>
+            {({ width, height}) => {
+              return renderGalleries(width, height)
+            }}
+          </AutoSizer>
+        </div>
+    )
   }
 
   selectPhoto = (photo) => {
@@ -74,8 +115,8 @@ class App extends React.Component {
   render() {
     return (
       <>
-        {this.renderShowcase()}
         {this.renderPhotosBy()}
+        {this.renderShowcase()}
       </>
     );
   }
