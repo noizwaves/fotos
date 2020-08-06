@@ -34,9 +34,12 @@ getFiles(galleryPath)
     .then(filePaths => {
         photos = filePaths
             .map(absPath => absPath.substring(galleryPath.length))
+            .sort()
+            .reverse()
             .filter(path => PHOTO_REGEX.test(path))
             .map(path => new Photo(path))
-            // TODO: sort
+
+        console.log(`Found ${photos.length} photos`)
     })
 
 const corsOptions = {
