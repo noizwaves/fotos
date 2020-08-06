@@ -3,9 +3,18 @@ import axios from 'axios'
 import './reset.css'
 import './App.css'
 
+function groupBy(keyFunc, items) {
+  const hash = items.reduce((arr, item) => {
+    const key = keyFunc(item)
+    return (arr[key] ? arr[key].push(item) : arr[key] = [item], arr)
+  }, {})
+
+  return Object.keys(hash).map(key => ({key: key, items: hash[key]}));
+}
+
 class App extends React.Component {
   state = {
-    photos: [],
+    photosBy: [],
     columns: 6,
     selected: null,
   }
@@ -13,17 +22,28 @@ class App extends React.Component {
   componentDidMount() {
     axios.get('http://localhost:3001/api/photos')
       .then(response => {
-        console.log(response)
-        this.setState({photos: response.data})
+        const photosBy = groupBy(p => `${p.date.year}-${p.date.month}-${p.date.day}`, response.data)
+        this.setState({photos: response.data, photosBy: photosBy})
       })
   }
 
-  renderPhotos = () => {
-    return this.state.photos.map((photo, i) => {
+  renderPhotosBy = () => {
+    return this.state.photosBy.map(({key, items}, i) => {
+      const photos = items.map((photo, k) => {
+        return (
+            <div key={`${i}-${k}`} className="photo">
+              <img src={photo.thumbnailUrl} alt={photo.filename} onClick={this.selectPhoto(photo)} />
+            </div>
+        )
+      })
+
       return (
-        <div key={i} className="photo">
-          <img src={photo.thumbnailUrl} alt={photo.filename} onClick={this.selectPhoto(photo)} />
-        </div>
+          <>
+            <h2>{key}</h2>
+            <div key={i} className={`gallery gallery-${this.state.columns}`}>
+              {photos}
+            </div>
+          </>
       )
     });
   }
@@ -55,9 +75,7 @@ class App extends React.Component {
     return (
       <>
         {this.renderShowcase()}
-        <div className={`gallery gallery-${this.state.columns}`}>
-          {this.renderPhotos()}
-        </div>
+        {this.renderPhotosBy()}
       </>
     );
   }

@@ -38,7 +38,7 @@ class Photo {
 
 // const galleryPath = '/Users/adam.neumann/workspace/fotos/example-gallery/'
 const galleryPath = '/home/adam/Pictures/iCloud_Photos/'
-let photos = []
+let photosBy = []
 getFiles(galleryPath)
     .then(filePaths => {
         photos = filePaths
