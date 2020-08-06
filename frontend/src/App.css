@@ -21,7 +21,7 @@
 
 /* 2 per row */
 .gallery.gallery-2 {
-    grid-template-columns: auto auto;
+    grid-template-columns: repeat(2, auto);
 }
 
 .gallery.gallery-2 > .photo > img {
@@ -30,7 +30,7 @@
 
 /* 3 per row */
 .gallery.gallery-3 {
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(3, auto);
 }
 
 .gallery.gallery-3 > .photo > img {
@@ -39,7 +39,7 @@
 
 /* 4 per row */
 .gallery.gallery-4 {
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: repeat(4, auto);
 }
 
 .gallery.gallery-4 > .photo > img {
@@ -48,16 +48,16 @@
 
 /* 5 per row */
 .gallery.gallery-5 {
-    grid-template-columns: auto auto auto auto auto;
+    grid-template-columns: repeat(5, auto);
 }
 
 .gallery.gallery-5 > .photo > img {
     max-height: calc(100vw/5 - 2px);
 }
 
-/* 5 per row */
+/* 6 per row */
 .gallery.gallery-6 {
-    grid-template-columns: auto auto auto auto auto auto;
+    grid-template-columns: repeat(6, auto);
 }
 
 .gallery.gallery-6 > .photo > img {
