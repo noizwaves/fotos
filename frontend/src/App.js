@@ -32,7 +32,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001/api/photos')
+    axios.get('/api/photos')
       .then(response => {
         const photosBy = groupBy(p => `${p.date.year}-${p.date.month}-${p.date.day}`, response.data)
         this.setState({photos: response.data, photosBy: photosBy})

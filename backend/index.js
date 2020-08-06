@@ -81,10 +81,6 @@ const corsOptions = {
     optionsSuccessStatus: 200
 }
 
-app.get('/', (req, res) => {
-  res.send(`You have ${photos.length} photos`)
-})
-
 // Serve raw gallery
 app.use('/raw', express.static(galleryPath))
 
@@ -95,8 +91,8 @@ app.get('/api/photos', cors(corsOptions), (req, res) => {
     const photoJson = photos.map(p => {
         return {
             filename: p.filename,
-            rawUrl: `http://localhost:3001/raw/${p.relativePath}`,
-            thumbnailUrl: `http://localhost:3001/thumbnail/${p.thumbnailRelativePath}`,
+            rawUrl: `/raw/${p.relativePath}`,
+            thumbnailUrl: `/thumbnail/${p.thumbnailRelativePath}`,
             date: { year: p.year, month: p.month, day: p.day }
         }
     })
@@ -104,5 +100,7 @@ app.get('/api/photos', cors(corsOptions), (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(photoJson))
 })
- 
+
+app.use('/', express.static(path.join(__dirname, '../frontend/build/')))
+
 app.listen(3001)
