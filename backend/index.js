@@ -2,7 +2,11 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const { resolve } = require('path');
-const { readdir } = require('fs').promises;
+const { readdir, writeFile } = require('fs').promises;
+const fs = require('fs');
+const sha1 = require('sha1')
+const path = require('path')
+const imageThumbnail = require('image-thumbnail');
 
 async function getFiles(dir) {
   const dirents = await readdir(dir, { withFileTypes: true });
@@ -25,10 +29,15 @@ class Photo {
         this.filename = match.groups.filename
 
         this.relativePath = relativePath
+
+        const hash = sha1(relativePath)
+        const ext = path.extname(relativePath)
+        this.thumbnailRelativePath = `${hash}${ext}`
     }
 }
 
-const galleryPath = '/Users/adam.neumann/workspace/fotos/example-gallery/'
+// const galleryPath = '/Users/adam.neumann/workspace/fotos/example-gallery/'
+const galleryPath = '/home/adam/Pictures/iCloud_Photos/'
 let photos = []
 getFiles(galleryPath)
     .then(filePaths => {
@@ -38,9 +47,34 @@ getFiles(galleryPath)
             .reverse()
             .filter(path => PHOTO_REGEX.test(path))
             .map(path => new Photo(path))
+            .filter((_, i) => i < 200)
 
-        console.log(`Found ${photos.length} photos`)
+        console.log(`Found ${photos.length} photos, generating thumbnails...`)
+
+        photos.forEach(generateThumbnail)
+
+        console.log('Thumbnails generated')
     })
+
+// Thumbnails
+const thumbnailsPath = '/home/adam/workspace/fotos/thumbnails/'
+
+function thumbnailPath(photo) {
+    return path.join(thumbnailsPath, photo.thumbnailRelativePath)
+}
+
+async function generateThumbnail(photo) {
+    const finalPath = thumbnailPath(photo)
+    if (fs.existsSync(finalPath)) {
+        return
+    }
+
+    const imagePath = path.join(galleryPath, photo.relativePath)
+    // const options = { height: 200, width: 200 }
+    const options = { percentage: 25 }
+    const thumbnail = await imageThumbnail(imagePath, options)
+    await writeFile(finalPath, thumbnail)
+}
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -54,11 +88,15 @@ app.get('/', (req, res) => {
 // Serve raw gallery
 app.use('/raw', express.static(galleryPath))
 
+// Serve thumbnail images
+app.use('/thumbnail', express.static(thumbnailsPath))
+
 app.get('/api/photos', cors(corsOptions), (req, res) => {
     const photoJson = photos.map(p => {
         return {
             filename: p.filename,
             rawUrl: `http://localhost:3001/raw/${p.relativePath}`,
+            thumbnailUrl: `http://localhost:3001/thumbnail/${p.thumbnailRelativePath}`,
             date: { year: p.year, month: p.month, day: p.day }
         }
     })

@@ -20,8 +20,8 @@ class App extends React.Component {
   renderPhotos = () => {
     return this.state.photos.map((photo, i) => {
       return (
-        <div className="photo">
-          <img key={i} src={photo.rawUrl} alt={photo.filename} />
+        <div key={i} className="photo">
+          <img src={photo.thumbnailUrl} alt={photo.filename} />
         </div>
       )
     });
