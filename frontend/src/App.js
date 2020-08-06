@@ -37,6 +37,16 @@ class App extends React.Component {
         const photosBy = groupBy(p => `${p.date.year}-${p.date.month}-${p.date.day}`, response.data)
         this.setState({photos: response.data, photosBy: photosBy})
       })
+
+    window.addEventListener('resize', this.resetCache.bind(this))
+  }
+
+  componentDidUnmount() {
+    window.removeEventListener('resize', this.resetCache.bind(this))
+  }
+
+  resetCache() {
+    this.cache.clearAll()
   }
 
   renderPhotosBy = () => {
