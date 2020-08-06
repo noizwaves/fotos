@@ -22,7 +22,7 @@ function groupBy(keyFunc, items) {
 class App extends React.Component {
   cache = new CellMeasurerCache({
     fixedWidth: true,
-    defaultHeight: 200,
+    defaultHeight: 300,
   })
 
   state = {
@@ -41,7 +41,7 @@ class App extends React.Component {
     window.addEventListener('resize', this.resetCache.bind(this))
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     window.removeEventListener('resize', this.resetCache.bind(this))
   }
 
