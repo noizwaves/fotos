@@ -4,7 +4,7 @@
   "description": "Lightweight photo gallery viewer for existing photo collections",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Adam Neumann",
@@ -12,5 +12,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
