@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const app = express()
+const process = require('process')
 const { resolve } = require('path');
 const { readdir, writeFile } = require('fs').promises;
 const fs = require('fs');
@@ -8,6 +8,11 @@ const sha1 = require('sha1')
 const path = require('path')
 const imageThumbnail = require('image-thumbnail');
 
+const app = express()
+
+//
+// File i/o
+//
 async function getFiles(dir) {
   const dirents = await readdir(dir, { withFileTypes: true });
   const files = await Promise.all(dirents.map((dirent) => {
@@ -17,6 +22,9 @@ async function getFiles(dir) {
   return Array.prototype.concat(...files);
 }
 
+//
+// Photos
+//
 const PHOTO_REGEX = new RegExp("^(?<year>[\\d]{4})\\/(?<month>[\\d]{1,2})\\/(?<day>[\\d]{1,2})\\/(?<filename>.*\.(jpg|png))$", 'i')
 
 class Photo {
@@ -36,10 +44,10 @@ class Photo {
     }
 }
 
-let photos = []
 
-// const galleryPath = '/Users/adam.neumann/workspace/fotos/example-gallery/'
-const galleryPath = '/home/adam/Pictures/iCloud_Photos/'
+const galleryPath = process.env.GALLERY_PATH
+
+let photos = []
 getFiles(galleryPath)
     .then(filePaths => {
         photos = filePaths
@@ -57,8 +65,10 @@ getFiles(galleryPath)
         console.log('Thumbnails generated')
     })
 
+//
 // Thumbnails
-const thumbnailsPath = '/home/adam/workspace/fotos/thumbnails/'
+//
+const thumbnailsPath = process.env.THUMBNAILS_PATH
 
 function thumbnailPath(photo) {
     return path.join(thumbnailsPath, photo.thumbnailRelativePath)
@@ -77,6 +87,9 @@ async function generateThumbnail(photo) {
     await writeFile(finalPath, thumbnail)
 }
 
+//
+// Web
+//
 const corsOptions = {
     origin: 'http://localhost:3000',
     optionsSuccessStatus: 200
@@ -88,6 +101,7 @@ app.use('/raw', express.static(galleryPath))
 // Serve thumbnail images
 app.use('/thumbnail', express.static(thumbnailsPath))
 
+// Photos API
 app.get('/api/photos', cors(corsOptions), (req, res) => {
     const photoJson = photos.map(p => {
         return {
@@ -102,6 +116,10 @@ app.get('/api/photos', cors(corsOptions), (req, res) => {
     res.send(JSON.stringify(photoJson))
 })
 
+// Serve front end
 app.use('/', express.static(path.join(__dirname, '../frontend/build/')))
 
-app.listen(3001)
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`)
+})
