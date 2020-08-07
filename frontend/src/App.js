@@ -20,6 +20,20 @@ function groupBy(keyFunc, items) {
   return Object.keys(hash).map(key => ({key: key, items: hash[key]}));
 }
 
+class Toolbar extends React.Component {
+  render() {
+    return (
+        <div className="toolbar">
+          <button onClick={this.props.onPlus}>+</button>
+          <button onClick={this.props.onMinus}>-</button>
+        </div>
+    )
+  }
+}
+
+const MAX_COLUMNS = 6;
+const MIN_COLUMNS = 2;
+
 class App extends React.Component {
   cache = new CellMeasurerCache({
     fixedWidth: true,
@@ -69,7 +83,7 @@ class App extends React.Component {
 
       return (
           <CellMeasurer key={key} cache={this.cache} parent={parent} columnIndex={0} rowIndex={index}>
-            <div style={style}>
+            <div className="day-gallery" style={style}>
               <h2>{date}</h2>
               <div key={index} className={`gallery gallery-${this.state.columns}`}>
                 {photos}
@@ -94,7 +108,7 @@ class App extends React.Component {
     }
 
     return (
-        <div style={{ width: "100%", height: "100vh" }}>
+        <div style={{ width: "100%", height: "calc(100vh - 2rem)" }}>
           <AutoSizer>
             {({ width, height}) => {
               return renderGalleries(width, height)
@@ -127,9 +141,36 @@ class App extends React.Component {
     )
   }
 
+  handleMinus = () => {
+    this.setState((state, props) => {
+      // Already at minimum number of columns
+      if (state.columns >= MAX_COLUMNS) {
+        return
+      }
+
+      // Clear the cache, so the next re-render generates new values
+      this.cache.clearAll()
+      return { columns: state.columns + 1 };
+    })
+  }
+
+  handlePlus = () => {
+    this.setState((state) => {
+      // Already at minimum number of columns
+      if (state.columns <= MIN_COLUMNS) {
+        return
+      }
+
+      // Clear the cache, so the next re-render generates new values
+      this.cache.clearAll()
+      return { columns: state.columns - 1};
+    })
+  }
+
   render() {
     return (
       <>
+        <Toolbar onPlus={this.handlePlus} onMinus={this.handleMinus} />
         {this.renderPhotosBy()}
         {this.renderShowcase()}
       </>

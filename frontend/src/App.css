@@ -1,3 +1,13 @@
+.toolbar {
+    background-color: #eee;
+    height: 2rem;
+}
+
+.day-gallery:first-of-type h2 {
+    border-top: none;
+    margin-top: auto;
+}
+
 h2 {
     font-family: Helvetica, sans-serif;
     font-size: 1rem;
