@@ -22,3 +22,7 @@ A lightweight photo viewer inspired by iCloud Photos.
         fotos_dev:latest
     ```
 1.  Open [fotos](http://localhost:3000/)
+
+## Deploying
+
+Some example deployments with Docker can be found in `./examples`.

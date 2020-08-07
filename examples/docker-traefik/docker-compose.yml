@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  fotos:
+    image: noizwaves/fotos:latest
+    container_name: fotos
+    hostname: fotos
+    networks:
+      - web
+    environment:
+      - TZ=America/Denver
+      - PORT=3000
+    volumes:
+      ## Change `/path/to/thumbnails` to the directory you want to store generated thumbnails in
+      - /path/to/photos:/gallery:ro
+
+      ## Change `/path/to/photos` to the directory that contains your photos
+      - /path/to/thumbnails:/thumbnails
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.fotos.loadbalancer.server.port=3000
+
+      # HTTPS
+      - traefik.http.routers.fotos.rule=Host(`fotos.domain.com`)
+      - traefik.http.routers.fotos.tls.certresolver=mytlschallenge
+      - traefik.http.routers.fotos.entrypoints=web-secured
+      - traefik.http.routers.fotos.tls=true
+      - traefik.http.routers.fotos.service=fotos
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  fotos:
+    image: noizwaves/fotos:latest
+    container_name: fotos
+    hostname: fotos
+    environment:
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      ## Change `/path/to/thumbnails` to the directory you want to store generated thumbnails in
+      - /path/to/thumbnails:/thumbnails
+
+      ## Change `/path/to/photos` to the directory that contains your photos
+      - /path/to/photos:/gallery:ro
+    restart: unless-stopped
