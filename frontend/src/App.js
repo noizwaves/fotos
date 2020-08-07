@@ -11,7 +11,7 @@ import {
 import './reset.css'
 import './App.css'
 
-function groupBy(keyFunc, items) {
+const groupBy = (keyFunc, items) => {
   const hash = items.reduce((arr, item) => {
     const key = keyFunc(item)
     return (arr[key] ? arr[key].push(item) : arr[key] = [item], arr)
@@ -20,72 +20,66 @@ function groupBy(keyFunc, items) {
   return Object.keys(hash).map(key => ({key: key, items: hash[key]}));
 }
 
-class Toolbar extends React.Component {
-  render() {
-    return (
-        <div className="toolbar">
-          <button onClick={this.props.onPlus}>+</button>
-          <button onClick={this.props.onMinus}>-</button>
-        </div>
-    )
-  }
+const Toolbar = (props) => {
+  return (
+      <div className="toolbar">
+        <button onClick={props.onPlus}>+</button>
+        <button onClick={props.onMinus}>-</button>
+      </div>
+  )
 }
 
 const MAX_COLUMNS = 6;
 const MIN_COLUMNS = 2;
 
-class App extends React.Component {
-  cache = new CellMeasurerCache({
+const App = () => {
+  const cache = React.useRef(new CellMeasurerCache({
     fixedWidth: true,
     defaultHeight: 300,
-  })
+  }))
 
-  state = {
-    photosBy: [],
-    columns: 6,
-    selected: null,
-  }
+  const resetCache = () => cache.current.clearAll()
 
-  componentDidMount() {
+  const [photosBy, setPhotosBy] = React.useState([])
+  const [columns, setColumns] = React.useState(6)
+  const [selected, setSelected] = React.useState(null)
+
+  React.useEffect(() => {
     const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
 
     axios.get('/api/photos')
-      .then(response => {
-        const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
-        this.setState({photos: response.data, photosBy: photosBy})
-      })
+        .then(response => {
+          const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
+          setPhotosBy(photosBy)
+        })
 
-    window.addEventListener('resize', this.resetCache.bind(this))
-  }
+    window.addEventListener('resize', resetCache)
 
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resetCache.bind(this))
-  }
+    return () => {
+      window.removeEventListener('resize', resetCache)
+    }
+  }, [])
 
-  resetCache() {
-    this.cache.clearAll()
-  }
-
-  renderPhotosBy = () => {
+  const renderPhotosBy = () => {
     const renderGallery = ({ key, index, style, parent }) => {
-      const items = this.state.photosBy[index].items
+      const items = photosBy[index].items
       const date = DateTime
-          .fromFormat(this.state.photosBy[index].key, "yyyy-MM-dd")
+          .fromFormat(photosBy[index].key, "yyyy-MM-dd")
           .toLocaleString({ weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})
 
       const photos = items.map((photo, k) => {
         return (
             <div key={`${index}-${k}`} className="photo">
-              <img src={photo.thumbnailUrl} alt={photo.filename} onClick={this.selectPhoto(photo)} />
+              <img src={photo.thumbnailUrl} alt={photo.filename} onClick={selectPhoto(photo)} />
             </div>
         )
       })
 
       return (
-          <CellMeasurer key={key} cache={this.cache} parent={parent} columnIndex={0} rowIndex={index}>
+          <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
             <div className="day-gallery" style={style}>
               <h2>{date}</h2>
-              <div key={index} className={`gallery gallery-${this.state.columns}`}>
+              <div className={`gallery gallery-${columns}`}>
                 {photos}
               </div>
             </div>
@@ -98,12 +92,11 @@ class App extends React.Component {
           <List
               width={width}
               height={height}
-              rowHeight={this.cache.rowHeight}
-              deferredMeasurementCache={this.cache}
-              rowCount={this.state.photosBy.length}
+              rowHeight={cache.current.rowHeight}
+              deferredMeasurementCache={cache.current}
+              rowCount={photosBy.length}
               rowRenderer={renderGallery}
-          >
-          </List>
+          />
       )
     }
 
@@ -118,64 +111,57 @@ class App extends React.Component {
     )
   }
 
-  selectPhoto = (photo) => {
+  const selectPhoto = (photo) => {
     return () => {
-      this.setState({ selected: photo })
+      setSelected(photo)
     }
   }
 
-  unselectPhoto = () => {
-    this.setState({ selected: null })
+  const unselectPhoto = () => {
+    setSelected(null )
   }
 
-  renderShowcase = () => {
-    if (!this.state.selected) {
+  const renderShowcase = () => {
+    if (!selected) {
       return null
     }
 
-    const photo = this.state.selected
     return (
-        <div className="showcase" onClick={this.unselectPhoto}>
-          <img src={photo.rawUrl} alt={photo.filename} />
+        <div className="showcase" onClick={unselectPhoto}>
+          <img src={selected.rawUrl} alt={selected.filename} />
         </div>
     )
   }
 
-  handleMinus = () => {
-    this.setState((state, props) => {
-      // Already at minimum number of columns
-      if (state.columns >= MAX_COLUMNS) {
-        return
-      }
+  const handleMinus = () => {
+    // Already at minimum number of columns
+    if (columns >= MAX_COLUMNS) {
+      return
+    }
 
-      // Clear the cache, so the next re-render generates new values
-      this.cache.clearAll()
-      return { columns: state.columns + 1 };
-    })
+    // Clear the cache, so the next re-render generates new values
+    resetCache()
+    setColumns(columns + 1)
   }
 
-  handlePlus = () => {
-    this.setState((state) => {
-      // Already at minimum number of columns
-      if (state.columns <= MIN_COLUMNS) {
-        return
-      }
+  const handlePlus = () => {
+    // Already at minimum number of columns
+    if (columns <= MIN_COLUMNS) {
+      return
+    }
 
-      // Clear the cache, so the next re-render generates new values
-      this.cache.clearAll()
-      return { columns: state.columns - 1};
-    })
+    // Clear the cache, so the next re-render generates new values
+    resetCache()
+    setColumns(columns - 1)
   }
 
-  render() {
-    return (
+  return (
       <>
-        <Toolbar onPlus={this.handlePlus} onMinus={this.handleMinus} />
-        {this.renderPhotosBy()}
-        {this.renderShowcase()}
+        <Toolbar onPlus={handlePlus} onMinus={handleMinus} />
+        {renderPhotosBy()}
+        {renderShowcase()}
       </>
-    );
-  }
+  );
 }
 
 export default App;
