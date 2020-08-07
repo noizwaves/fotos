@@ -1,7 +1,10 @@
 h2 {
-    font-size: 1.5rem;
-    font-weight: 400;
-    padding: 2rem;
+    font-family: Helvetica, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 1rem;
+    border-top: 1px solid #DDD;
+    margin-top: 1rem;
 }
 
 .gallery {
