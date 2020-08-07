@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios'
+import { DateTime } from 'luxon';
 import {
   List,
   AutoSizer,
@@ -32,9 +33,11 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
+
     axios.get('/api/photos')
       .then(response => {
-        const photosBy = groupBy(p => `${p.date.year}-${p.date.month}-${p.date.day}`, response.data)
+        const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
         this.setState({photos: response.data, photosBy: photosBy})
       })
 
@@ -52,7 +55,9 @@ class App extends React.Component {
   renderPhotosBy = () => {
     const renderGallery = ({ key, index, style, parent }) => {
       const items = this.state.photosBy[index].items
-      const date = this.state.photosBy[index].key
+      const date = DateTime
+          .fromFormat(this.state.photosBy[index].key, "yyyy-MM-dd")
+          .toLocaleString({ weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})
 
       const photos = items.map((photo, k) => {
         return (
