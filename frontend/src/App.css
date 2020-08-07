@@ -17,8 +17,8 @@ h2 {
 
 .gallery > .photo > img {
     cursor: pointer;
-    min-width: 100%;
-    min-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
@@ -28,8 +28,8 @@ h2 {
 }
 
 .gallery.gallery-2 > .photo {
-    height: calc(100vw/2 - 6px);
-    width: calc(100vw/2 - 6px);
+    height: calc(100vw/2);
+    width: calc(100vw/2);
 }
 
 /* 3 per row */
@@ -38,8 +38,8 @@ h2 {
 }
 
 .gallery.gallery-3 > .photo {
-    height: calc(100vw/3 - 4px);
-    width: calc(100vw/3 - 4px);
+    height: calc(100vw/3);
+    width: calc(100vw/3);
 }
 
 /* 4 per row */
@@ -48,8 +48,8 @@ h2 {
 }
 
 .gallery.gallery-4 > .photo {
-    height: calc(100vw/4 - 3px);
-    width: calc(100vw/4 - 3px);
+    height: calc(100vw/4);
+    width: calc(100vw/4);
 }
 
 /* 5 per row */
@@ -58,8 +58,8 @@ h2 {
 }
 
 .gallery.gallery-5 > .photo {
-    height: calc(100vw/5 - 2px);
-    width: calc(100vw/5 - 2px);
+    height: calc(100vw/5);
+    width: calc(100vw/5);
 }
 
 /* 6 per row */
@@ -68,8 +68,8 @@ h2 {
 }
 
 .gallery.gallery-6 > .photo {
-    height: calc(100vw/6 - 2px);
-    width: calc(100vw/6 - 2px);
+    height: calc(100vw/6);
+    width: calc(100vw/6);
 }
 
 /* Showcase */
