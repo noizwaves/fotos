@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios'
-import { DateTime } from 'luxon';
+import {DateTime} from 'luxon';
 import {
   List,
   AutoSizer,
@@ -22,10 +22,10 @@ const groupBy = (keyFunc, items) => {
 
 const Toolbar = (props) => {
   return (
-      <div className="toolbar">
-        <button onClick={props.onPlus}>+</button>
-        <button onClick={props.onMinus}>-</button>
-      </div>
+    <div className="toolbar">
+      <button onClick={props.onPlus}>+</button>
+      <button onClick={props.onMinus}>-</button>
+    </div>
   )
 }
 
@@ -48,10 +48,10 @@ const App = () => {
     const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
 
     axios.get('/api/photos')
-        .then(response => {
-          const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
-          setPhotosBy(photosBy)
-        })
+      .then(response => {
+        const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
+        setPhotosBy(photosBy)
+      })
 
     window.addEventListener('resize', resetCache)
 
@@ -61,53 +61,53 @@ const App = () => {
   }, [])
 
   const renderPhotosBy = () => {
-    const renderGallery = ({ key, index, style, parent }) => {
+    const renderGallery = ({key, index, style, parent}) => {
       const items = photosBy[index].items
       const date = DateTime
-          .fromFormat(photosBy[index].key, "yyyy-MM-dd")
-          .toLocaleString({ weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})
+        .fromFormat(photosBy[index].key, "yyyy-MM-dd")
+        .toLocaleString({weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})
 
       const photos = items.map((photo, k) => {
         return (
-            <div key={`${index}-${k}`} className="photo">
-              <img src={photo.thumbnailUrl} alt={photo.filename} onClick={selectPhoto(photo)} />
-            </div>
+          <div key={`${index}-${k}`} className="photo">
+            <img src={photo.thumbnailUrl} alt={photo.filename} onClick={selectPhoto(photo)}/>
+          </div>
         )
       })
 
       return (
-          <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
-            <div className="day-gallery" style={style}>
-              <h2>{date}</h2>
-              <div className={`gallery gallery-${columns}`}>
-                {photos}
-              </div>
+        <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
+          <div className="day-gallery" style={style}>
+            <h2>{date}</h2>
+            <div className={`gallery gallery-${columns}`}>
+              {photos}
             </div>
-          </CellMeasurer>
+          </div>
+        </CellMeasurer>
       )
     }
 
     const renderGalleries = (width, height) => {
       return (
-          <List
-              width={width}
-              height={height}
-              rowHeight={cache.current.rowHeight}
-              deferredMeasurementCache={cache.current}
-              rowCount={photosBy.length}
-              rowRenderer={renderGallery}
-          />
+        <List
+          width={width}
+          height={height}
+          rowHeight={cache.current.rowHeight}
+          deferredMeasurementCache={cache.current}
+          rowCount={photosBy.length}
+          rowRenderer={renderGallery}
+        />
       )
     }
 
     return (
-        <div style={{ width: "100%", height: "calc(100vh - 2rem)" }}>
-          <AutoSizer>
-            {({ width, height}) => {
-              return renderGalleries(width, height)
-            }}
-          </AutoSizer>
-        </div>
+      <div style={{width: "100%", height: "calc(100vh - 2rem)"}}>
+        <AutoSizer>
+          {({width, height}) => {
+            return renderGalleries(width, height)
+          }}
+        </AutoSizer>
+      </div>
     )
   }
 
@@ -118,7 +118,7 @@ const App = () => {
   }
 
   const unselectPhoto = () => {
-    setSelected(null )
+    setSelected(null)
   }
 
   const renderShowcase = () => {
@@ -127,9 +127,9 @@ const App = () => {
     }
 
     return (
-        <div className="showcase" onClick={unselectPhoto}>
-          <img src={selected.rawUrl} alt={selected.filename} />
-        </div>
+      <div className="showcase" onClick={unselectPhoto}>
+        <img src={selected.rawUrl} alt={selected.filename}/>
+      </div>
     )
   }
 
@@ -156,11 +156,11 @@ const App = () => {
   }
 
   return (
-      <>
-        <Toolbar onPlus={handlePlus} onMinus={handleMinus} />
-        {renderPhotosBy()}
-        {renderShowcase()}
-      </>
+    <>
+      <Toolbar onPlus={handlePlus} onMinus={handleMinus}/>
+      {renderPhotosBy()}
+      {renderShowcase()}
+    </>
   );
 }
 
