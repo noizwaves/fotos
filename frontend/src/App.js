@@ -50,6 +50,7 @@ const App = () => {
     axios.get('/api/photos')
       .then(response => {
         const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
+        photosBy.forEach(({items}) => items.reverse())
         setPhotosBy(photosBy)
       })
 
