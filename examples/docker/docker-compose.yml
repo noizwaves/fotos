@@ -14,5 +14,5 @@ services:
       - /path/to/thumbnails:/thumbnails
 
       ## Change `/path/to/photos` to the directory that contains your photos
-      - /path/to/photos:/gallery:ro
+      - /path/to/photos:/photos:ro
     restart: unless-stopped

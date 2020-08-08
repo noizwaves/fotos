@@ -1,6 +1,6 @@
 const express = require('express')
 const process = require('process')
-const {resolve} = require('path');
+const {resolve, relative} = require('path');
 const {readdir} = require('fs').promises;
 const fs = require('fs');
 const sha1 = require('sha1')
@@ -55,17 +55,17 @@ class Photo {
 //
 // Thumbnails
 //
-const getThumbnailAbsolutePath = (thumbnailsPath, photo) => {
-  return path.join(thumbnailsPath, photo.thumbnailRelativePath)
+const getThumbnailAbsolutePath = (thumbnailsRootPath, photo) => {
+  return path.join(thumbnailsRootPath, photo.thumbnailRelativePath)
 }
 
-const generateThumbnailFile = async (galleryPath, thumbnailsPath, photo) => {
-  const finalPath = getThumbnailAbsolutePath(thumbnailsPath, photo)
+const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) => {
+  const finalPath = getThumbnailAbsolutePath(thumbnailsRootPath, photo)
   if (fs.existsSync(finalPath)) {
     return Promise.resolve()
   }
 
-  const imagePath = path.join(galleryPath, photo.relativePath)
+  const imagePath = path.join(photosRootPath, photo.relativePath)
 
   try {
     await sharp(imagePath)
@@ -82,12 +82,12 @@ const generateThumbnailFile = async (galleryPath, thumbnailsPath, photo) => {
 //
 // Application state
 //
-const loadApplicationState = async (galleryPath, thumbnailsPath) => {
-  const files = await getFiles(galleryPath)
+const loadApplicationState = async (photosRootPath, thumbnailsRootPath) => {
+  const files = await getFiles(photosRootPath)
 
   const photos =
     files
-      .map(absPath => absPath.substring(galleryPath.length))
+      .map(absPath => relative(photosRootPath, absPath))
       .sort()
       .reverse()
       .filter(path => PHOTO_REGEX.test(path))
@@ -95,27 +95,27 @@ const loadApplicationState = async (galleryPath, thumbnailsPath) => {
 
   console.log(`Found ${photos.length} photos, generating thumbnails...`)
 
-  await Promise.all(photos.map(p => generateThumbnailFile(galleryPath, thumbnailsPath, p)))
+  await Promise.all(photos.map(p => generateThumbnailFile(photosRootPath, thumbnailsRootPath, p)))
   console.log('Thumbnails generated')
 
-  return Promise.resolve({photos, galleryPath, thumbnailsPath})
+  return Promise.resolve({photos, photosRootPath, thumbnailsRootPath})
 }
 
 
 //
 // Application
 //
-const buildApplication = ({galleryPath, thumbnailsPath, photos}, app) => {
-  app.use('/raw', express.static(galleryPath))
+const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => {
+  app.use('/photos', express.static(photosRootPath))
 
-  app.use('/thumbnail', express.static(thumbnailsPath))
+  app.use('/thumbnails', express.static(thumbnailsRootPath))
 
   app.get('/api/photos', (req, res) => {
     const photoJson = photos.map(p => {
       return {
         filename: p.filename,
-        rawUrl: `/raw/${p.relativePath}`,
-        thumbnailUrl: `/thumbnail/${p.thumbnailRelativePath}`,
+        photoUrl: `/photos/${p.relativePath}`,
+        thumbnailUrl: `/thumbnails/${p.thumbnailRelativePath}`,
         date: {year: p.year, month: p.month, day: p.day}
       }
     })
@@ -131,15 +131,15 @@ const buildApplication = ({galleryPath, thumbnailsPath, photos}, app) => {
 //
 // Configuration
 //
-const galleryPath = process.env.GALLERY_PATH
-const thumbnailsPath = process.env.THUMBNAILS_PATH
+const photosRootPath = process.env.PHOTOS_ROOT_PATH
+const thumbnailsRootPath = process.env.THUMBNAILS_ROOT_PATH
 const PORT = process.env.PORT || 3001;
 
 
 //
 // Bootstrap the application
 //
-loadApplicationState(galleryPath, thumbnailsPath)
+loadApplicationState(photosRootPath, thumbnailsRootPath)
   .then(state => {
     const app = express()
 

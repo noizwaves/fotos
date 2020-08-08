@@ -14,7 +14,7 @@ A lightweight photo viewer inspired by iCloud Photos.
     ```
     $ docker run \
         -p 3000:3000 \
-        -v $HOME/Pictures/iCloud_Photos:/gallery:ro \
+        -v $HOME/Pictures/iCloud_Photos:/photos:ro \
         -v `pwd`/thumbnails:/thumbnails \
         --name fotos \
         --hostname fotos \

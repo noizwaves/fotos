@@ -161,7 +161,7 @@ const App = () => {
 
     return (
       <div className="showcase" onClick={unselectPhoto}>
-        <img src={selected.rawUrl} alt={selected.filename}/>
+        <img src={selected.photoUrl} alt={selected.filename}/>
       </div>
     )
   }

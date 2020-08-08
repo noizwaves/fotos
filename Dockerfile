@@ -15,7 +15,7 @@ WORKDIR "backend"
 ENV PORT 3000
 EXPOSE 3000
 
-ENV GALLERY_PATH /gallery/
-ENV THUMBNAILS_PATH /thumbnails/
+ENV PHOTOS_ROOT_PATH /photos/
+ENV THUMBNAILS_ROOT_PATH /thumbnails/
 
 CMD ["node", "index.js"]
