@@ -57,6 +57,7 @@ const App = () => {
             .map(path => {
               return {
                 path: path,
+                name: path.split('/')[3],
                 date: path.split('/').splice(0,3).join('-')
               }
             })
@@ -99,7 +100,7 @@ const App = () => {
       const photos = items.map((photo, k) => {
         return (
           <div key={`${index}-${k}`} className="photo">
-            <img src={`${THUMBNAILS_ROOT}/${photo.path}`} alt={photo.path} onClick={selectPhoto(photo)}/>
+            <img src={`${THUMBNAILS_ROOT}/${photo.path}`} alt={photo.name} onClick={selectPhoto(photo)}/>
           </div>
         )
       })
@@ -170,7 +171,7 @@ const App = () => {
 
     return (
       <div className="showcase" onClick={unselectPhoto}>
-        <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.path}/>
+        <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.name}/>
       </div>
     )
   }
