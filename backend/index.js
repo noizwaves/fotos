@@ -1,11 +1,11 @@
 const express = require('express')
 const process = require('process')
 const {resolve} = require('path');
-const {readdir, writeFile} = require('fs').promises;
+const {readdir} = require('fs').promises;
 const fs = require('fs');
 const sha1 = require('sha1')
 const path = require('path')
-const imageThumbnail = require('image-thumbnail');
+const sharp = require('sharp');
 
 
 //
@@ -66,15 +66,16 @@ const generateThumbnailFile = async (galleryPath, thumbnailsPath, photo) => {
   }
 
   const imagePath = path.join(galleryPath, photo.relativePath)
-  const options = {percentage: 25}
 
   try {
-    const thumbnail = await imageThumbnail(imagePath, options)
-    return writeFile(finalPath, thumbnail)
+    await sharp(imagePath)
+      .resize(400, 400, {fit: 'outside', withoutEnlargement: true})
+      .withMetadata()
+      .toFile(finalPath)
   } catch (err) {
     console.log(`Error with ${imagePath}: ${err.message}`)
-    return Promise.resolve()
   }
+  return Promise.resolve()
 }
 
 

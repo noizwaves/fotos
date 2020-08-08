@@ -12,8 +12,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "image-thumbnail": "^1.0.10",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+    "sharp": "^0.25.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
