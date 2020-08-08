@@ -10,7 +10,6 @@
   "author": "Adam Neumann",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.17.1",
     "sha1": "^1.1.1",
     "sharp": "^0.25.4"

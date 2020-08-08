@@ -1,15 +1,14 @@
 FROM node:10.22-alpine
 
 RUN mkdir -p frontend backend
+ENV NODE_ENV production
 
 ADD backend/package.json backend/package-lock.json backend/
 RUN (cd backend && npm install)
 ADD backend/ backend/
 
-ADD frontend/package.json frontend/yarn.lock frontend/
-RUN (cd frontend && yarn install)
 ADD frontend/ frontend/
-RUN (cd frontend && yarn build)
+RUN (cd frontend && yarn install && yarn build && rm -rf node_modules)
 
 WORKDIR "backend"
 
