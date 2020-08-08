@@ -85,7 +85,7 @@ const App = () => {
       const items = photosBy[index].items
       const date = DateTime
         .fromFormat(photosBy[index].key, "yyyy-MM-dd")
-        .toLocaleString({weekday: 'long', month: 'long', day: '2-digit', year: 'numeric'})
+        .toLocaleString({weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})
 
       const photos = items.map((photo, k) => {
         return (
