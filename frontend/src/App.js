@@ -31,6 +31,8 @@ const Toolbar = (props) => {
 
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
+const PHOTOS_ROOT = '/photos'
+const THUMBNAILS_ROOT = '/thumbnails'
 
 const App = () => {
   const cache = React.useRef(new CellMeasurerCache({
@@ -47,11 +49,18 @@ const App = () => {
   const [scrolling, setScrolling] = React.useState(false)
 
   React.useEffect(() => {
-    const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
-
     axios.get('/api/photos')
       .then(response => {
-        const photosBy = groupBy(p => `${p.date.year}-${pad2(p.date.month)}-${pad2(p.date.day)}`, response.data)
+        const paths = response.data
+        const photos =
+          paths
+            .map(path => {
+              return {
+                path: path,
+                date: path.split('/').splice(0,3).join('-')
+              }
+            })
+        const photosBy = groupBy(p => p.date, photos)
         photosBy.forEach(({items}) => items.reverse())
         setPhotosBy(photosBy)
       })
@@ -90,7 +99,7 @@ const App = () => {
       const photos = items.map((photo, k) => {
         return (
           <div key={`${index}-${k}`} className="photo">
-            <img src={photo.thumbnailUrl} alt={photo.filename} onClick={selectPhoto(photo)}/>
+            <img src={`${THUMBNAILS_ROOT}/${photo.path}`} alt={photo.path} onClick={selectPhoto(photo)}/>
           </div>
         )
       })
@@ -161,7 +170,7 @@ const App = () => {
 
     return (
       <div className="showcase" onClick={unselectPhoto}>
-        <img src={selected.photoUrl} alt={selected.filename}/>
+        <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.path}/>
       </div>
     )
   }

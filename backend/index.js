@@ -1,7 +1,7 @@
 const express = require('express')
 const process = require('process')
 const {resolve, relative} = require('path');
-const {readdir} = require('fs').promises;
+const {readdir, mkdir} = require('fs').promises;
 const fs = require('fs');
 const sha1 = require('sha1')
 const path = require('path')
@@ -44,10 +44,6 @@ class Photo {
     this.filename = match.groups.filename
 
     this.relativePath = relativePath
-
-    const hash = sha1(relativePath)
-    const ext = path.extname(relativePath)
-    this.thumbnailRelativePath = `${hash}${ext}`
   }
 }
 
@@ -56,7 +52,7 @@ class Photo {
 // Thumbnails
 //
 const getThumbnailAbsolutePath = (thumbnailsRootPath, photo) => {
-  return path.join(thumbnailsRootPath, photo.thumbnailRelativePath)
+  return path.join(thumbnailsRootPath, photo.relativePath)
 }
 
 const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) => {
@@ -64,6 +60,8 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
   if (fs.existsSync(finalPath)) {
     return Promise.resolve()
   }
+
+  await mkdir(path.dirname(finalPath), { recursive: true})
 
   const imagePath = path.join(photosRootPath, photo.relativePath)
 
@@ -110,14 +108,11 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => 
 
   app.use('/thumbnails', express.static(thumbnailsRootPath))
 
+  const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
+
   app.get('/api/photos', (req, res) => {
     const photoJson = photos.map(p => {
-      return {
-        filename: p.filename,
-        photoUrl: `/photos/${p.relativePath}`,
-        thumbnailUrl: `/thumbnails/${p.thumbnailRelativePath}`,
-        date: {year: p.year, month: p.month, day: p.day}
-      }
+      return p.relativePath
     })
 
     res.setHeader('Content-Type', 'application/json');
