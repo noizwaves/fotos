@@ -29,6 +29,35 @@ const Toolbar = (props) => {
   )
 }
 
+const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
+  React.useEffect(() => {
+    const handleKeydown = (event) => {
+      if (event.keyCode === 37) {
+        onPrevious()
+      } else if (event.keyCode === 39) {
+        onNext()
+      }
+    }
+
+    if (selected !== null) {
+      window.addEventListener('keydown', handleKeydown)
+      return () => {
+        window.removeEventListener('keydown', handleKeydown)
+      }
+    }
+  }, [selected])
+
+  if (!selected) {
+    return null
+  }
+
+  return (
+    <div className="showcase" onClick={onUnselect}>
+      <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.name}/>
+    </div>
+  )
+}
+
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
 const PHOTOS_ROOT = '/photos'
@@ -44,6 +73,7 @@ const App = () => {
   const resetCache = () => cache.current.clearAll()
 
   const [photosBy, setPhotosBy] = React.useState([])
+  const [photos, setPhotos] = React.useState([])
   const [columns, setColumns] = React.useState(6)
   const [selected, setSelected] = React.useState(null)
   const [scrolling, setScrolling] = React.useState(false)
@@ -52,6 +82,7 @@ const App = () => {
     axios.get('/api/photos')
       .then(response => {
         const paths = response.data
+
         const photos =
           paths
             .map(path => {
@@ -61,6 +92,8 @@ const App = () => {
                 date: path.split('/').splice(0,3).join('-')
               }
             })
+        setPhotos(photos)
+
         const photosBy = groupBy(p => p.date, photos)
         photosBy.forEach(({items}) => items.reverse())
         setPhotosBy(photosBy)
@@ -164,16 +197,20 @@ const App = () => {
     setSelected(null)
   }
 
-  const renderShowcase = () => {
-    if (!selected) {
-      return null
-    }
+  const handleNext = () => {
+    const current = photos.indexOf(selected)
 
-    return (
-      <div className="showcase" onClick={unselectPhoto}>
-        <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.name}/>
-      </div>
-    )
+    if (current + 1 < photos.length) {
+      setSelected(photos[current + 1])
+    }
+  }
+
+  const handlePrevious = () => {
+    const current = photos.indexOf(selected)
+
+    if (current > 1) {
+      setSelected(photos[current - 1])
+    }
   }
 
   const handleMinus = () => {
@@ -202,7 +239,7 @@ const App = () => {
     <>
       <Toolbar onPlus={handlePlus} onMinus={handleMinus}/>
       {renderPhotosBy()}
-      {renderShowcase()}
+      <Showcase selected={selected} onUnselect={unselectPhoto} onNext={handleNext} onPrevious={handlePrevious}/>
     </>
   );
 }
