@@ -55,13 +55,30 @@ const App = () => {
         photosBy.forEach(({items}) => items.reverse())
         setPhotosBy(photosBy)
       })
+  }, [])
 
+  React.useEffect(() => {
     window.addEventListener('resize', resetCache)
 
     return () => {
       window.removeEventListener('resize', resetCache)
     }
   }, [])
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+  }, [columns])
+
+  const handleKeydown = (event) => {
+    if (event.keyCode === 173) {
+      handleMinus()
+    } else if (event.keyCode === 61) {
+      handlePlus()
+    }
+  }
 
   const renderPhotosBy = () => {
     const renderGallery = ({key, index, style, parent}) => {
