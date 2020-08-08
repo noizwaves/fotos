@@ -95,6 +95,66 @@ h2 {
     width: calc((100vw - 3.5rem)/6);
 }
 
+/* 7 per row */
+.gallery.gallery-7 {
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.gallery.gallery-7 > .photo {
+    height: calc((100vw - 4rem)/7);
+    width: calc((100vw - 4rem)/7);
+}
+
+/* 8 per row */
+.gallery.gallery-8 {
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.gallery.gallery-8 > .photo {
+    height: calc((100vw - 4.5rem)/8);
+    width: calc((100vw - 4.5rem)/8);
+}
+
+/* 9 per row */
+.gallery.gallery-9 {
+    grid-template-columns: repeat(9, 1fr);
+}
+
+.gallery.gallery-9 > .photo {
+    height: calc((100vw - 5rem)/9);
+    width: calc((100vw - 5rem)/9);
+}
+
+/* 10 per row */
+.gallery.gallery-10 {
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.gallery.gallery-10 > .photo {
+    height: calc((100vw - 5.5rem)/10);
+    width: calc((100vw - 5.5rem)/10);
+}
+
+/* 11 per row */
+.gallery.gallery-11 {
+    grid-template-columns: repeat(11, 1fr);
+}
+
+.gallery.gallery-11 > .photo {
+    height: calc((100vw - 6rem)/11);
+    width: calc((100vw - 6rem)/11);
+}
+
+/* 12 per row */
+.gallery.gallery-12 {
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.gallery.gallery-12 > .photo {
+    height: calc((100vw - 6.5rem)/12);
+    width: calc((100vw - 6.5rem)/12);
+}
+
 /* Showcase */
 .showcase {
     cursor: pointer;

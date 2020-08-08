@@ -29,7 +29,7 @@ const Toolbar = (props) => {
   )
 }
 
-const MAX_COLUMNS = 6;
+const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
 
 const App = () => {
