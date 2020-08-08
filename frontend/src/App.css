@@ -17,6 +17,13 @@ h2 {
     margin-top: 1rem;
 }
 
+.galleries {
+    scrollbar-width: none;
+}
+.galleries.scrolling {
+    scrollbar-width: auto;
+}
+
 .gallery {
     margin: 0 0.5rem;
     display: grid;

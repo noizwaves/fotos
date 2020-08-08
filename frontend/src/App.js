@@ -37,12 +37,14 @@ const App = () => {
     fixedWidth: true,
     defaultHeight: 300,
   }))
+  const scrollingRef = React.useRef({timeout: null})
 
   const resetCache = () => cache.current.clearAll()
 
   const [photosBy, setPhotosBy] = React.useState([])
   const [columns, setColumns] = React.useState(6)
   const [selected, setSelected] = React.useState(null)
+  const [scrolling, setScrolling] = React.useState(false)
 
   React.useEffect(() => {
     const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
@@ -88,15 +90,28 @@ const App = () => {
       )
     }
 
+    const recordScrolling = () => {
+      // ensure state knows we are definitely scrolling
+      setScrolling(true)
+
+      // restart the timeout that signifies scrolling has stopped
+      window.clearTimeout(scrollingRef.current.timeout)
+      scrollingRef.current.timeout = setTimeout(() => {
+        setScrolling(false)
+      }, 2000)
+    }
+
     const renderGalleries = (width, height) => {
       return (
         <List
+          className={scrolling ? "galleries scrolling" : "galleries"}
           width={width}
           height={height}
           rowHeight={cache.current.rowHeight}
           deferredMeasurementCache={cache.current}
           rowCount={photosBy.length}
           rowRenderer={renderGallery}
+          onScroll={recordScrolling}
         />
       )
     }
