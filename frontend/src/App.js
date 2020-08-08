@@ -36,6 +36,8 @@ const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
         onPrevious()
       } else if (event.keyCode === 39) {
         onNext()
+      } else if (event.keyCode === 27) {
+        onUnselect()
       }
     }
 
@@ -208,7 +210,7 @@ const App = () => {
   const handlePrevious = () => {
     const current = photos.indexOf(selected)
 
-    if (current > 1) {
+    if (current > 0) {
       setSelected(photos[current - 1])
     }
   }
