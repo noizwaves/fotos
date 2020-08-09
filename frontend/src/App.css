@@ -155,6 +155,68 @@ h2 {
     width: calc((100vw - 6.5rem)/12);
 }
 
+@media only screen and (max-width: 700px) {
+    .gallery {
+        margin: 0 0.1rem;
+        grid-column-gap: 0.1rem;
+        grid-row-gap: 0.1rem;
+    }
+
+    .gallery.gallery-2 > .photo {
+        height: calc((100vw - 0.3rem)/2);
+        width: calc((100vw - 0.3rem)/2);
+    }
+
+    .gallery.gallery-3 > .photo {
+        height: calc((100vw - 0.4rem)/3);
+        width: calc((100vw - 0.4rem)/3);
+    }
+
+    .gallery.gallery-4 > .photo {
+        height: calc((100vw - 0.5rem)/4);
+        width: calc((100vw - 0.5rem)/4);
+    }
+
+    .gallery.gallery-5 > .photo {
+        height: calc((100vw - 0.6rem)/5);
+        width: calc((100vw - 0.6rem)/5);
+    }
+
+    .gallery.gallery-6 > .photo {
+        height: calc((100vw - 0.7rem)/6);
+        width: calc((100vw - 0.7rem)/6);
+    }
+
+    .gallery.gallery-7 > .photo {
+        height: calc((100vw - 0.8rem)/7);
+        width: calc((100vw - 0.8rem)/7);
+    }
+
+    .gallery.gallery-8 > .photo {
+        height: calc((100vw - 0.9rem)/8);
+        width: calc((100vw - 0.9rem)/8);
+    }
+
+    .gallery.gallery-9 > .photo {
+        height: calc((100vw - 1rem)/9);
+        width: calc((100vw - 1rem)/9);
+    }
+
+    .gallery.gallery-10 > .photo {
+        height: calc((100vw - 1.1rem)/10);
+        width: calc((100vw - 1.1rem)/10);
+    }
+
+    .gallery.gallery-11 > .photo {
+        height: calc((100vw - 1.2rem)/11);
+        width: calc((100vw - 1.2rem)/11);
+    }
+
+    .gallery.gallery-12 > .photo {
+        height: calc((100vw - 1.3rem)/12);
+        width: calc((100vw - 1.3rem)/12);
+    }}
+
 /* Showcase */
 .showcase {
     cursor: pointer;
