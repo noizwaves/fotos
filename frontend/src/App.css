@@ -1,6 +1,35 @@
 .toolbar {
     background-color: #eee;
-    height: 2rem;
+    height: 3rem;
+    border-bottom: 1px solid #ddd;
+    padding: 0 0.5rem;
+}
+
+.toolbar .button {
+    border: none;
+    background-color: transparent;
+    font-size: 2rem;
+    cursor: pointer;
+    margin: 0.25rem 0 0;
+    padding: 0 0.25rem;
+}
+
+@media only screen and (max-width: 640px) {
+    .toolbar {
+        height: 3rem;
+    }
+
+    .toolbar .button {
+        font-size: 2.2rem;
+        margin: 0.25rem 0.25rem 0;
+        padding: 0 0.5rem;
+    }
+}
+
+@media (hover: hover) {
+    .toolbar .button:hover {
+        color: #999;
+    }
 }
 
 .day-gallery:first-of-type h2 {
@@ -155,7 +184,7 @@ h2 {
     width: calc((100vw - 6.5rem)/12);
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 640px) {
     .gallery {
         margin: 0 0.1rem;
         grid-column-gap: 0.1rem;

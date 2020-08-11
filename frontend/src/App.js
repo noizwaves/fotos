@@ -7,6 +7,8 @@ import {
   CellMeasurer,
   CellMeasurerCache,
 } from 'react-virtualized'
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 
 import './reset.css'
 import './App.css'
@@ -23,8 +25,12 @@ const groupBy = (keyFunc, items) => {
 const Toolbar = (props) => {
   return (
     <div className="toolbar">
-      <button onClick={props.onPlus}>+</button>
-      <button onClick={props.onMinus}>-</button>
+      <button className="button" onClick={props.onPlus}>
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
+      <button className="button" onClick={props.onMinus}>
+        <FontAwesomeIcon icon={faMinus} />
+      </button>
     </div>
   )
 }
@@ -179,7 +185,7 @@ const App = () => {
     }
 
     return (
-      <div style={{width: "100%", height: "calc(100vh - 2rem)"}}>
+      <div style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}>
         <AutoSizer>
           {({width, height}) => {
             return renderGalleries(width, height)
