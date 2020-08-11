@@ -23,6 +23,17 @@ const groupBy = (keyFunc, items) => {
 }
 
 const Toolbar = (props) => {
+  const [value, setValue] = React.useState('')
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    props.onGoToDate(value)
+    setValue('')
+  }
+  const handleChange = (event) => {
+    setValue(event.target.value)
+  }
+
   return (
     <div className="toolbar">
       <button className="button" onClick={props.onPlus}>
@@ -31,6 +42,17 @@ const Toolbar = (props) => {
       <button className="button" onClick={props.onMinus}>
         <FontAwesomeIcon icon={faMinus} />
       </button>
+      <form onSubmit={handleSubmit}>
+        <input
+          ref={props.inputRef}
+          type="text"
+          onFocus={props.onInputFocus}
+          onBlur={props.onInputBlur}
+          value={value}
+          placeholder="Go to YYYY, YYYY-MM, or YYYY-MM-DD"
+          onChange={handleChange}
+        />
+      </form>
     </div>
   )
 }
@@ -77,6 +99,9 @@ const App = () => {
     defaultHeight: 300,
   }))
   const scrollingRef = React.useRef({timeout: null})
+  const list = React.useRef(null)
+  const inputRef = React.useRef(null)
+  const galleryRef = React.useRef(null)
 
   const resetCache = () => cache.current.clearAll()
 
@@ -85,6 +110,7 @@ const App = () => {
   const [columns, setColumns] = React.useState(6)
   const [selected, setSelected] = React.useState(null)
   const [scrolling, setScrolling] = React.useState(false)
+  const [inputting, setInputting] = React.useState(false)
 
   React.useEffect(() => {
     axios.get('/api/photos')
@@ -121,13 +147,19 @@ const App = () => {
     return () => {
       window.removeEventListener('keydown', handleKeydown)
     }
-  }, [columns])
+  }, [columns, inputting, selected])
 
   const handleKeydown = (event) => {
-    if (event.keyCode === 173) {
-      handleMinus()
-    } else if (event.keyCode === 61) {
-      handlePlus()
+
+    if (!inputting && !selected) {
+      if (event.keyCode === 173) {
+        handleMinus()
+      } else if (event.keyCode === 61) {
+        handlePlus()
+      } else if (event.keyCode === 71) {
+        inputRef.current.focus()
+        event.preventDefault()
+      }
     }
   }
 
@@ -172,6 +204,7 @@ const App = () => {
     const renderGalleries = (width, height) => {
       return (
         <List
+          ref={list}
           className={scrolling ? "galleries scrolling" : "galleries"}
           width={width}
           height={height}
@@ -180,12 +213,17 @@ const App = () => {
           rowCount={photosBy.length}
           rowRenderer={renderGallery}
           onScroll={recordScrolling}
+          scrollToAlignment="start"
         />
       )
     }
 
     return (
-      <div style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}>
+      <div
+        ref={galleryRef}
+        tabIndex={4}
+        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
+      >
         <AutoSizer>
           {({width, height}) => {
             return renderGalleries(width, height)
@@ -243,11 +281,74 @@ const App = () => {
     setColumns(columns - 1)
   }
 
+  const handleGoToDate = (value) => {
+    const keys = photosBy
+      .map(({key}) => key)
+
+    const focusOnList = () => galleryRef.current.children[0].children[0].focus()
+
+    if (value.length === 10) {
+      // try an exact date match
+      const row = keys.indexOf(value)
+
+      if (row >= 0) {
+        list.current.scrollToRow(row)
+        focusOnList()
+      } else {
+        console.log(`date ${value} not found`)
+      }
+    } else if (value.length === 7) {
+      // find the month
+      const monthKeys = keys
+        .filter((k) => k.startsWith(value))
+      const monthKey = monthKeys[monthKeys.length - 1]
+
+      if (monthKey && keys.indexOf(monthKey)) {
+        list.current.scrollToRow(keys.indexOf(monthKey))
+        focusOnList()
+      } else {
+        console.log(`month ${value} not found`)
+      }
+    } else if (value.length === 4) {
+      // find the year
+      const yearKeys = keys
+        .filter((k) => k.startsWith(value))
+      const yearKey = yearKeys[yearKeys.length - 1]
+
+      if (yearKey && keys.indexOf(yearKey)) {
+        list.current.scrollToRow(keys.indexOf(yearKey))
+        focusOnList()
+      } else {
+        console.log(`year ${value} not found`)
+      }
+    }
+  }
+
+  const handleInputBlur = () => {
+    setInputting(false)
+  }
+  const handleInputFocus = () => {
+    setInputting(true)
+  }
+
+
   return (
     <>
-      <Toolbar onPlus={handlePlus} onMinus={handleMinus}/>
+      <Toolbar
+        inputRef={inputRef}
+        onPlus={handlePlus}
+        onMinus={handleMinus}
+        onGoToDate={handleGoToDate}
+        onInputBlur={handleInputBlur}
+        onInputFocus={handleInputFocus}
+      />
       {renderPhotosBy()}
-      <Showcase selected={selected} onUnselect={unselectPhoto} onNext={handleNext} onPrevious={handlePrevious}/>
+      <Showcase
+        selected={selected}
+        onUnselect={unselectPhoto}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
     </>
   );
 }
