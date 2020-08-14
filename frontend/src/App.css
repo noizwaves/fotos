@@ -3,6 +3,8 @@
     height: 3rem;
     border-bottom: 1px solid #ddd;
     padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
 }
 
 .toolbar .button {
@@ -20,7 +22,7 @@
 }
 
 .toolbar input {
-    width: 20rem;
+    width: 12rem;
 }
 
 @media only screen and (max-width: 640px) {

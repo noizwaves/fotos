@@ -49,7 +49,7 @@ const Toolbar = (props) => {
           onFocus={props.onInputFocus}
           onBlur={props.onInputBlur}
           value={value}
-          placeholder="Go to YYYY, YYYY-MM, or YYYY-MM-DD"
+          placeholder="YYYY, YYYY-MM, or YYYY-MM-DD"
           onChange={handleChange}
         />
       </form>
