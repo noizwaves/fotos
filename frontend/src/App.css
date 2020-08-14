@@ -9,7 +9,7 @@
 
 .toolbar .button {
     border: none;
-    color: #999;
+    color: #AAA;
     background-color: transparent;
     font-size: 2rem;
     cursor: pointer;
@@ -39,7 +39,7 @@
 
 @media (hover: hover) {
     .toolbar .button:hover {
-        color: #333;
+        color: #999;
     }
 }
 
