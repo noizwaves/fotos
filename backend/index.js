@@ -3,7 +3,6 @@ const process = require('process')
 const {resolve, relative} = require('path');
 const {readdir, mkdir} = require('fs').promises;
 const fs = require('fs');
-const sha1 = require('sha1')
 const path = require('path')
 const sharp = require('sharp');
 
@@ -110,8 +109,6 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => 
   app.use('/photos', express.static(photosRootPath))
 
   app.use('/thumbnails', express.static(thumbnailsRootPath))
-
-  const pad2 = (n) => n < 10 ? `0${n}` : `${n}`
 
   app.get('/api/photos', (req, res) => {
     const photoJson = photos.map(p => {
