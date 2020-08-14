@@ -72,6 +72,9 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
       .toFile(finalPath)
   } catch (err) {
     console.log(`Error with ${imagePath}: ${err.message}`)
+    if (fs.existsSync(finalPath)) {
+      fs.unlinkSync(finalPath)
+    }
   }
   return Promise.resolve()
 }
