@@ -17,6 +17,10 @@
     padding: 0 0.25rem;
 }
 
+.toolbar .button.selected {
+    color: #666;
+}
+
 .toolbar form {
     display: inline;
 }
@@ -41,11 +45,19 @@
     .toolbar .button:hover {
         color: #999;
     }
+
+    .toolbar .button.selected:hover {
+        color: #555;
+    }
 }
 
 .day-gallery:first-of-type h2 {
     border-top: none;
     margin-top: auto;
+}
+
+.day-gallery .back {
+    cursor: pointer;
 }
 
 h2 {
@@ -256,6 +268,36 @@ h2 {
         height: calc((100vw - 1.3rem)/12);
         width: calc((100vw - 1.3rem)/12);
     }}
+
+/* Album Browser */
+.album-browser {
+    font-size: 1.3rem;
+    padding: 1rem;
+}
+
+.album-browser .folder > .contents {
+    margin-left: 1.3rem;
+}
+
+.album-browser .folder > .toggle {
+    display: inline-block;
+    width: 1.3rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.album-browser .folder > .name {
+    cursor: pointer;
+}
+
+.album-browser .album {
+    margin-left: 1.3rem;
+}
+
+.album-browser .album > .name {
+    cursor: pointer;
+}
+
 
 /* Showcase */
 .showcase {

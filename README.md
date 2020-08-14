@@ -17,6 +17,7 @@ A lightweight photo viewer inspired by iCloud Photos.
     1.  `$ cd backend`
     1.  `$ export PHOTOS_ROOT_PATH=/path/to/dev/photos`
     1.  `$ export THUMBNAILS_ROOT_PATH=/path/to/dev/thumbnails`
+    1.  `$ export ALBUMS_ROOT_PATH=/path/to/dev/albums`
     1.  `$ npm start`
 1.  Start the frontend in another terminal
     1.  `$ cd fronend`
@@ -31,6 +32,7 @@ A lightweight photo viewer inspired by iCloud Photos.
     $ docker run \
         -p 3000:3000 \
         -v $HOME/Pictures/iCloud_Photos:/photos:ro \
+        -v $HOME/Pictures/iCloud_Albums:/albums:ro \
         -v `pwd`/thumbnails:/thumbnails \
         --name fotos \
         --hostname fotos \

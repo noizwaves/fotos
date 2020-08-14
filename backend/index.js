@@ -46,6 +46,25 @@ class Photo {
   }
 }
 
+// Albums
+const ALBUM_REGEX = new RegExp("\.json$")
+
+class Album {
+  constructor(id, name, relativePhotoPaths) {
+    this.id = id;
+    this.name = name;
+    this.relativePhotoPaths = relativePhotoPaths.filter(p => PHOTO_REGEX.test(p));
+  }
+
+  verifyContents(photosRootPath) {
+    this.relativePhotoPaths.forEach(p => {
+      const absPath = path.join(photosRootPath, p)
+      if (!fs.existsSync(absPath)) {
+        console.log(`Error in Album ${this.id}: Cannot find ${p}`)
+      }
+    })
+  }
+}
 
 //
 // Thumbnails
@@ -82,7 +101,7 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
 //
 // Application state
 //
-const loadApplicationState = async (photosRootPath, thumbnailsRootPath) => {
+const loadApplicationState = async (photosRootPath, thumbnailsRootPath, albumsRootPath) => {
   const files = await getFiles(photosRootPath)
 
   const photos =
@@ -98,14 +117,27 @@ const loadApplicationState = async (photosRootPath, thumbnailsRootPath) => {
   await Promise.all(photos.map(p => generateThumbnailFile(photosRootPath, thumbnailsRootPath, p)))
   console.log('Thumbnails generated')
 
-  return Promise.resolve({photos, photosRootPath, thumbnailsRootPath})
+  console.log('Loading albums...')
+  const albumFiles = await getFiles(albumsRootPath)
+  const albums =
+    albumFiles
+      .filter(path => ALBUM_REGEX.test(path))
+      .map(path => [relative(albumsRootPath, path), fs.readFileSync(path)])
+      .map(([id, data]) => [id, JSON.parse(data)])
+      .map(([id, data]) => new Album(id, data.name, data.photos))
+
+  // albums.forEach(a => a.verifyContents(photosRootPath))
+
+  console.log('Albums loaded')
+
+  return Promise.resolve({photos, albums, photosRootPath, thumbnailsRootPath})
 }
 
 
 //
 // Application
 //
-const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => {
+const buildApplication = ({photosRootPath, thumbnailsRootPath, photos, albums}, app) => {
   app.use('/photos', express.static(photosRootPath))
 
   app.use('/thumbnails', express.static(thumbnailsRootPath))
@@ -119,6 +151,19 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => 
     res.send(JSON.stringify(photoJson))
   })
 
+  app.get('/api/albums', (req, res) => {
+    const albumsJson = albums.map(a => {
+      return {
+        id: a.id,
+        name: a.name,
+        photos: a.relativePhotoPaths
+      }
+    })
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(albumsJson))
+  })
+
   app.use('/', express.static(path.join(__dirname, '../frontend/build/')))
 }
 
@@ -128,13 +173,14 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, photos}, app) => 
 //
 const photosRootPath = process.env.PHOTOS_ROOT_PATH
 const thumbnailsRootPath = process.env.THUMBNAILS_ROOT_PATH
+const albumsRootPath = process.env.ALBUMS_ROOT_PATH
 const PORT = process.env.PORT || 3001;
 
 
 //
 // Bootstrap the application
 //
-loadApplicationState(photosRootPath, thumbnailsRootPath)
+loadApplicationState(photosRootPath, thumbnailsRootPath, albumsRootPath)
   .then(state => {
     const app = express()
 

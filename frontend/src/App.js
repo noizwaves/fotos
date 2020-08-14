@@ -8,7 +8,14 @@ import {
   CellMeasurerCache,
 } from 'react-virtualized'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
+import {
+  faFolder,
+  faPlus,
+  faMinus,
+  faCaretRight,
+  faCaretDown,
+  faAngleDoubleLeft
+} from '@fortawesome/free-solid-svg-icons'
 
 import './reset.css'
 import './App.css'
@@ -22,37 +29,83 @@ const groupBy = (keyFunc, items) => {
   return Object.keys(hash).map(key => ({key: key, items: hash[key]}));
 }
 
-const Toolbar = (props) => {
+const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPlus, onAlbums, showAlbumBrowser}) => {
   const [value, setValue] = React.useState('')
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    props.onGoToDate(value)
+    onGoToDate(value)
     setValue('')
   }
   const handleChange = (event) => {
     setValue(event.target.value)
   }
 
+  const albumButtonClasses = showAlbumBrowser ? 'button selected' : 'button'
+
   return (
     <div className="toolbar">
-      <button className="button" onClick={props.onPlus}>
+      <button className="button" onClick={onPlus}>
         <FontAwesomeIcon icon={faPlus} />
       </button>
-      <button className="button" onClick={props.onMinus}>
+      <button className="button" onClick={onMinus}>
         <FontAwesomeIcon icon={faMinus} />
+      </button>
+      <button className={albumButtonClasses} onClick={onAlbums}>
+        <FontAwesomeIcon icon={faFolder} />
       </button>
       <form onSubmit={handleSubmit}>
         <input
-          ref={props.inputRef}
+          ref={inputRef}
           type="text"
-          onFocus={props.onInputFocus}
-          onBlur={props.onInputBlur}
+          onFocus={onInputFocus}
+          onBlur={onInputBlur}
           value={value}
           placeholder="YYYY, YYYY-MM, or YYYY-MM-DD"
           onChange={handleChange}
         />
       </form>
+    </div>
+  )
+}
+
+const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder, selectAlbum}) => {
+  const albumOrFolder = (item) => {
+    if (item.contents) {
+      if (expandedFolderIds.indexOf(item.id) >= 0) {
+        return (
+          <div className="folder" key={item.id}>
+            <span className="toggle">
+              <FontAwesomeIcon icon={faCaretDown} onClick={() => toggleFolder(item.id)}/>
+            </span>
+            <span className="name" onClick={() => toggleFolder(item.id)}>{item.name}</span>
+            <div className="contents">
+              {item.contents.map(albumOrFolder, expandedFolderIds)}
+            </div>
+          </div>
+        )
+      } else {
+        return (
+          <div className="folder" key={item.id}>
+            <span className="toggle">
+              <FontAwesomeIcon icon={faCaretRight} onClick={() => toggleFolder(item.id)}/>
+            </span>
+            <span className="name" onClick={() => toggleFolder(item.id)}>{item.name}</span>
+          </div>
+        )
+      }
+    } else {
+      return (
+        <div className="album" key={item.id}>
+          <span className="name" onClick={() => selectAlbum(item)}>{item.name}</span>
+        </div>
+      )
+    }
+  }
+
+  return (
+    <div className="album-browser">
+      {rootFolder !== null ? rootFolder.contents.map(albumOrFolder, expandedFolderIds) : null}
     </div>
   )
 }
@@ -97,6 +150,14 @@ class CellDisplayedCache {
   }
 }
 
+const makePhoto = (path) => {
+  return {
+    path: path,
+    name: path.split('/')[3],
+    date: path.split('/').splice(0,3).join('-')
+  }
+}
+
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
 const PHOTOS_ROOT = '/photos'
@@ -122,25 +183,57 @@ const App = () => {
   const [scrolling, setScrolling] = React.useState(false)
   const [inputting, setInputting] = React.useState(false)
 
+  const [showAlbumBrowser, setShowAlbumBrowser] = React.useState(false)
+  const [selectedAlbum, setSelectedAlbum] = React.useState(null)
+
+  const [rootFolder, setRootFolder] = React.useState(null)
+  const [expandedFolderIds, setExpandedFolderIds] = React.useState([])
+
   React.useEffect(() => {
     axios.get('/api/photos')
       .then(response => {
         const paths = response.data
-
-        const photos =
-          paths
-            .map(path => {
-              return {
-                path: path,
-                name: path.split('/')[3],
-                date: path.split('/').splice(0,3).join('-')
-              }
-            })
+        const photos = paths.map(makePhoto)
         setPhotos(photos)
 
         const photosBy = groupBy(p => p.date, photos)
         photosBy.forEach(({items}) => items.reverse())
         setPhotosBy(photosBy)
+      })
+  }, [])
+
+  React.useEffect(() => {
+    axios.get('/api/albums')
+      .then(response => {
+        const albums = response.data.map((album) => {
+          return {...album, photos: album.photos.map(makePhoto)}
+        })
+
+        const rootFolder = {name: 'Root Folder', id: '/', contents: []}
+
+        albums.forEach(album => {
+          // create folders for this album
+          const folderNames = album.id.split('/')
+
+          let current = rootFolder
+
+          for (let i = 0; i < folderNames.length - 1; i++) {
+            const folderName = folderNames[i]
+            const existing = current.contents.find(item => item.contents && item.name === folderName)
+            if (existing) {
+              current = existing
+            } else {
+              const newFolder = {id: `${current.id}${folderName}/`, name: folderName, contents: []}
+              current.contents.push(newFolder)
+              current = newFolder
+            }
+          }
+
+          // put album in folder
+          current.contents.push(album)
+        })
+
+        setRootFolder(rootFolder)
       })
   }, [])
 
@@ -160,7 +253,6 @@ const App = () => {
   }, [columns, inputting, selected])
 
   const handleKeydown = (event) => {
-
     if (!inputting && !selected) {
       if (event.keyCode === 173) {
         handleMinus()
@@ -174,6 +266,10 @@ const App = () => {
   }
 
   const renderPhotosBy = () => {
+    if (selectedAlbum || showAlbumBrowser) {
+      return null
+    }
+
     const renderGallery = ({key, index, style, parent, isScrolling, isVisible}) => {
       const items = photosBy[index].items
       const date = DateTime
@@ -245,6 +341,59 @@ const App = () => {
     )
   }
 
+  const renderAlbum = () => {
+    if (!selectedAlbum) {
+      return null
+    }
+
+    const renderPhotos = (album) => {
+      const photos = album.photos.map((photo, k) => {
+        const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`
+        return (
+          <div key={k} className="photo">
+            <img src={photosSrc} alt={photo.name} onClick={selectPhoto(photo)} />
+          </div>
+        )
+      })
+
+      return (
+        <div className="day-gallery">
+          <h2>
+            <FontAwesomeIcon className="back" icon={faAngleDoubleLeft} onClick={() => setSelectedAlbum(null)}/>
+            <span> {album.name}</span>
+          </h2>
+          <div className={`gallery gallery-${columns}`}>
+            {photos}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div
+        tabIndex={4}
+        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
+      >
+        {renderPhotos(selectedAlbum)}
+      </div>
+    )
+  }
+
+  const renderAlbumBrowser = () => {
+    if (!showAlbumBrowser || selectedAlbum) {
+      return null
+    }
+
+    return (
+      <AlbumBrowser
+        rootFolder={rootFolder}
+        expandedFolderIds={expandedFolderIds}
+        toggleFolder={handleToggleFolder}
+        selectAlbum={handleSelectAlbum}
+      />
+    )
+  }
+
   const selectPhoto = (photo) => {
     return () => {
       setSelected(photo)
@@ -256,18 +405,22 @@ const App = () => {
   }
 
   const handleNext = () => {
-    const current = photos.indexOf(selected)
+    const possiblePhotos = selectedAlbum ? selectedAlbum.photos : photos;
 
-    if (current + 1 < photos.length) {
-      setSelected(photos[current + 1])
+    const current = possiblePhotos.indexOf(selected)
+
+    if (current + 1 < possiblePhotos.length) {
+      setSelected(possiblePhotos[current + 1])
     }
   }
 
   const handlePrevious = () => {
-    const current = photos.indexOf(selected)
+    const possiblePhotos = selectedAlbum ? selectedAlbum.photos : photos;
+
+    const current = possiblePhotos.indexOf(selected)
 
     if (current > 0) {
-      setSelected(photos[current - 1])
+      setSelected(possiblePhotos[current - 1])
     }
   }
 
@@ -341,13 +494,34 @@ const App = () => {
   }
 
   const handleInputFocus = () => {
+    setSelectedAlbum(null)
+    setShowAlbumBrowser(false)
     setInputting(true)
+  }
+
+  const handleSelectAlbum = (album) => {
+    setSelectedAlbum(album)
+  }
+
+  const handleToggleFolder = (id) => {
+    if (expandedFolderIds.indexOf(id) >= 0) {
+      setExpandedFolderIds(expandedFolderIds.filter(eid => eid !== id))
+    } else {
+      setExpandedFolderIds(expandedFolderIds.concat([id]))
+    }
+  }
+
+  const handleAlbumBrowserToggle = () => {
+    setShowAlbumBrowser(!showAlbumBrowser)
+    setSelectedAlbum(null)
   }
 
   return (
     <>
       <Toolbar
         inputRef={inputRef}
+        onAlbums={handleAlbumBrowserToggle}
+        showAlbumBrowser={showAlbumBrowser}
         onPlus={handlePlus}
         onMinus={handleMinus}
         onGoToDate={handleGoToDate}
@@ -355,6 +529,8 @@ const App = () => {
         onInputFocus={handleInputFocus}
       />
       {renderPhotosBy()}
+      {renderAlbumBrowser()}
+      {renderAlbum()}
       <Showcase
         selected={selected}
         onUnselect={unselectPhoto}
