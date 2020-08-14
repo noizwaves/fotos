@@ -88,6 +88,15 @@ const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
   )
 }
 
+class CellDisplayedCache {
+  _state = {};
+
+  shouldDisplayCell(index, isVisible, isScrolling) {
+    this._state[index] = this._state[index] || (isVisible && !isScrolling)
+    return this._state[index]
+  }
+}
+
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
 const PHOTOS_ROOT = '/photos'
@@ -98,6 +107,7 @@ const App = () => {
     fixedWidth: true,
     defaultHeight: 300,
   }))
+  const displayed = React.useRef(new CellDisplayedCache())
   const scrollingRef = React.useRef({timeout: null})
   const list = React.useRef(null)
   const inputRef = React.useRef(null)
@@ -164,16 +174,18 @@ const App = () => {
   }
 
   const renderPhotosBy = () => {
-    const renderGallery = ({key, index, style, parent}) => {
+    const renderGallery = ({key, index, style, parent, isScrolling, isVisible}) => {
       const items = photosBy[index].items
       const date = DateTime
         .fromFormat(photosBy[index].key, "yyyy-MM-dd")
         .toLocaleString({weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})
 
+      const renderPhoto = displayed.current.shouldDisplayCell(index, isVisible, isScrolling)
       const photos = items.map((photo, k) => {
+        const photosSrc = renderPhoto ? `${THUMBNAILS_ROOT}/${photo.path}` : '/placeholder.png'
         return (
           <div key={`${index}-${k}`} className="photo">
-            <img src={`${THUMBNAILS_ROOT}/${photo.path}`} alt={photo.name} onClick={selectPhoto(photo)}/>
+            <img src={photosSrc} alt={photo.name} onClick={selectPhoto(photo)}/>
           </div>
         )
       })
@@ -327,10 +339,10 @@ const App = () => {
   const handleInputBlur = () => {
     setInputting(false)
   }
+
   const handleInputFocus = () => {
     setInputting(true)
   }
-
 
   return (
     <>
