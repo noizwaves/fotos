@@ -1,10 +1,11 @@
 const express = require('express')
 const process = require('process')
-const {resolve, relative} = require('path');
-const {readdir, mkdir} = require('fs').promises;
+const {resolve, relative} = require('path')
+const {readdir, mkdir} = require('fs').promises
 const fs = require('fs');
 const path = require('path')
-const sharp = require('sharp');
+const sharp = require('sharp')
+const chokidar = require('chokidar')
 
 
 //
@@ -120,41 +121,61 @@ class PhotoLibrary {
     return this._albums;
   }
 
-
-
   async init() {
     const files = await getFiles(this.photosRootPath)
 
     this._photos =
       files
         .map(absPath => relative(this.photosRootPath, absPath))
-        .sort()
-        .reverse()
         .filter(path => PHOTO_REGEX.test(path))
         .map(path => new Photo(path))
+    this._photos.sort((p1, p2) => p2.relativePath.localeCompare(p1.relativePath))
 
     console.log(`Found ${this.photos.length} photos, generating thumbnails...`)
 
-    await Promise.all(this.photos.map(p => generateThumbnailFile(photosRootPath, thumbnailsRootPath, p)))
+    await Promise.all(this.photos.map(p => generateThumbnailFile(this.photosRootPath, this.thumbnailsRootPath, p)))
     console.log('Thumbnails generated')
 
     console.log('Loading albums...')
-    const albumFiles = await getFiles(albumsRootPath)
+    const albumFiles = await getFiles(this.albumsRootPath)
     this._albums =
       albumFiles
         .filter(path => ALBUM_REGEX.test(path))
-        .map(path => [relative(albumsRootPath, path), fs.readFileSync(path)])
+        .map(path => [relative(this.albumsRootPath, path), fs.readFileSync(path)])
         .map(([id, data]) => [id, JSON.parse(data)])
         .map(([id, data]) => new Album(id, data.name, data.photos))
     console.log('Albums loaded')
 
     return Promise.resolve()
   }
+
+  startWatch() {
+    chokidar
+      .watch(this.photosRootPath, { ignoreInitial: true })
+      .on('add', async (path) => {
+        console.log(`Detected new file: ${path}`)
+        const addedPhotos =
+          [path]
+            .map(absPath => relative(this.photosRootPath, absPath))
+            .filter(path => PHOTO_REGEX.test(path))
+            .map(path => new Photo(path))
+
+        if (addedPhotos.length === 0) {
+          return
+        }
+
+        this._photos = Array.prototype.concat(this._photos, addedPhotos)
+        this._photos.sort((p1, p2) => p2.relativePath.localeCompare(p1.relativePath))
+
+        await Promise.all(addedPhotos.map(p => generateThumbnailFile(this.photosRootPath, this.thumbnailsRootPath, p)))
+      });
+  }
 }
 
 const loadApplicationState = async (photosRootPath, thumbnailsRootPath, albumsRootPath) => {
   const library = new PhotoLibrary(photosRootPath, thumbnailsRootPath, albumsRootPath)
   await library.init()
+  library.startWatch()
 
   return Promise.resolve({library, photosRootPath, thumbnailsRootPath})
 }
