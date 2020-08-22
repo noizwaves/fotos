@@ -19,4 +19,4 @@ ENV PHOTOS_ROOT_PATH /photos/
 ENV THUMBNAILS_ROOT_PATH /thumbnails/
 ENV ALBUMS_ROOT_PATH /albums/
 
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
