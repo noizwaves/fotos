@@ -101,49 +101,75 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
 //
 // Application state
 //
+
+class PhotoLibrary {
+  constructor(photosRootPath, thumbnailsRootPath, albumsRootPath) {
+    this.photosRootPath = photosRootPath
+    this.thumbnailsRootPath = thumbnailsRootPath
+    this.albumsRootPath = albumsRootPath
+
+    this._photos = null
+    this._albums = null
+  }
+
+  get photos() {
+    return this._photos;
+  }
+
+  get albums() {
+    return this._albums;
+  }
+
+
+
+  async init() {
+    const files = await getFiles(this.photosRootPath)
+
+    this._photos =
+      files
+        .map(absPath => relative(this.photosRootPath, absPath))
+        .sort()
+        .reverse()
+        .filter(path => PHOTO_REGEX.test(path))
+        .map(path => new Photo(path))
+
+    console.log(`Found ${this.photos.length} photos, generating thumbnails...`)
+
+    await Promise.all(this.photos.map(p => generateThumbnailFile(photosRootPath, thumbnailsRootPath, p)))
+    console.log('Thumbnails generated')
+
+    console.log('Loading albums...')
+    const albumFiles = await getFiles(albumsRootPath)
+    this._albums =
+      albumFiles
+        .filter(path => ALBUM_REGEX.test(path))
+        .map(path => [relative(albumsRootPath, path), fs.readFileSync(path)])
+        .map(([id, data]) => [id, JSON.parse(data)])
+        .map(([id, data]) => new Album(id, data.name, data.photos))
+    console.log('Albums loaded')
+
+    return Promise.resolve()
+  }
+}
+
 const loadApplicationState = async (photosRootPath, thumbnailsRootPath, albumsRootPath) => {
-  const files = await getFiles(photosRootPath)
+  const library = new PhotoLibrary(photosRootPath, thumbnailsRootPath, albumsRootPath)
+  await library.init()
 
-  const photos =
-    files
-      .map(absPath => relative(photosRootPath, absPath))
-      .sort()
-      .reverse()
-      .filter(path => PHOTO_REGEX.test(path))
-      .map(path => new Photo(path))
-
-  console.log(`Found ${photos.length} photos, generating thumbnails...`)
-
-  await Promise.all(photos.map(p => generateThumbnailFile(photosRootPath, thumbnailsRootPath, p)))
-  console.log('Thumbnails generated')
-
-  console.log('Loading albums...')
-  const albumFiles = await getFiles(albumsRootPath)
-  const albums =
-    albumFiles
-      .filter(path => ALBUM_REGEX.test(path))
-      .map(path => [relative(albumsRootPath, path), fs.readFileSync(path)])
-      .map(([id, data]) => [id, JSON.parse(data)])
-      .map(([id, data]) => new Album(id, data.name, data.photos))
-
-  // albums.forEach(a => a.verifyContents(photosRootPath))
-
-  console.log('Albums loaded')
-
-  return Promise.resolve({photos, albums, photosRootPath, thumbnailsRootPath})
+  return Promise.resolve({library, photosRootPath, thumbnailsRootPath})
 }
 
 
 //
 // Application
 //
-const buildApplication = ({photosRootPath, thumbnailsRootPath, photos, albums}, app) => {
+const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) => {
   app.use('/photos', express.static(photosRootPath))
 
   app.use('/thumbnails', express.static(thumbnailsRootPath))
 
   app.get('/api/photos', (req, res) => {
-    const photoJson = photos.map(p => {
+    const photoJson = library.photos.map(p => {
       return p.relativePath
     })
 
@@ -152,7 +178,7 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, photos, albums}, 
   })
 
   app.get('/api/albums', (req, res) => {
-    const albumsJson = albums.map(a => {
+    const albumsJson = library.albums.map(a => {
       return {
         id: a.id,
         name: a.name,
