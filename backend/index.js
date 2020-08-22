@@ -151,7 +151,7 @@ class PhotoLibrary {
 
   startWatch() {
     chokidar
-      .watch(this.photosRootPath, { ignoreInitial: true })
+      .watch(this.photosRootPath, { ignoreInitial: true, usePolling: false, interval: 5000 })
       .on('add', async (path) => {
         console.log(`Detected new file: ${path}`)
         const addedPhotos =
