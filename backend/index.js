@@ -102,7 +102,6 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
 //
 // Application state
 //
-
 class PhotoLibrary {
   constructor(photosRootPath, thumbnailsRootPath, albumsRootPath) {
     this.photosRootPath = photosRootPath
@@ -144,6 +143,7 @@ class PhotoLibrary {
         .map(path => [relative(this.albumsRootPath, path), fs.readFileSync(path)])
         .map(([id, data]) => [id, JSON.parse(data)])
         .map(([id, data]) => new Album(id, data.name, data.photos))
+    this._albums.sort((p1, p2) => p1.id.localeCompare(p2.id))
     console.log('Albums loaded')
 
     return Promise.resolve()
@@ -169,6 +169,44 @@ class PhotoLibrary {
 
         await Promise.all(addedPhotos.map(p => generateThumbnailFile(this.photosRootPath, this.thumbnailsRootPath, p)))
       });
+
+    const addAlbum = (path) => {
+      const newAlbums =
+        [path]
+          .filter(path => ALBUM_REGEX.test(path))
+          .map(path => [relative(this.albumsRootPath, path), fs.readFileSync(path)])
+          .map(([id, data]) => [id, JSON.parse(data)])
+          .map(([id, data]) => new Album(id, data.name, data.photos))
+
+      if (this._albums) {
+        this._albums = Array.prototype.concat(this._albums, newAlbums)
+        this._albums.sort((p1, p2) => p1.id.localeCompare(p2.id))
+      }
+    }
+
+    const removeAlbum = (path) => {
+      const idToRemove = relative(this.albumsRootPath, path)
+
+      if (this._albums) {
+        this._albums = this._albums.filter(a => a.id !== idToRemove)
+      }
+    }
+
+    chokidar
+      .watch(this.albumsRootPath, { ignoreInitial: true, usePolling: false, interval: 5000 })
+      .on('add', (path) => {
+        console.log(`Detected new album: ${path}`)
+        addAlbum(path)
+      })
+      .on('unlink', async (path) => {
+        console.log(`Detected removed album: ${path}`)
+        removeAlbum(path)
+      })
+      .on('change', async (path) => {
+        console.log(`Detected changed album: ${path}`)
+        removeAlbum(path)
+        addAlbum(path)
+      })
   }
 }
 
