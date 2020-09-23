@@ -296,6 +296,8 @@ h2 {
 
 .album-browser .album > .name {
     cursor: pointer;
+    text-decoration: none;
+    color: black;
 }
 
 

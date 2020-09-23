@@ -14,8 +14,17 @@ import {
   faMinus,
   faCaretRight,
   faCaretDown,
-  faAngleDoubleLeft
+  faAngleDoubleLeft,
+  faImages
 } from '@fortawesome/free-solid-svg-icons'
+import {
+  Switch,
+  Route,
+  Link,
+  NavLink,
+  useParams,
+  useHistory
+} from 'react-router-dom';
 
 import './reset.css'
 import './App.css'
@@ -29,7 +38,7 @@ const groupBy = (keyFunc, items) => {
   return Object.keys(hash).map(key => ({key: key, items: hash[key]}));
 }
 
-const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPlus, onAlbums, showAlbumBrowser}) => {
+const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPlus}) => {
   const [value, setValue] = React.useState('')
 
   const handleSubmit = (event) => {
@@ -41,8 +50,6 @@ const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPl
     setValue(event.target.value)
   }
 
-  const albumButtonClasses = showAlbumBrowser ? 'button selected' : 'button'
-
   return (
     <div className="toolbar">
       <button className="button" onClick={onPlus}>
@@ -51,9 +58,12 @@ const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPl
       <button className="button" onClick={onMinus}>
         <FontAwesomeIcon icon={faMinus} />
       </button>
-      <button className={albumButtonClasses} onClick={onAlbums}>
+      <NavLink to="/" className="button" activeClassName="selected" exact={true}>
+        <FontAwesomeIcon icon={faImages} />
+      </NavLink>
+      <NavLink to="/albums" className="button" activeClassName="selected">
         <FontAwesomeIcon icon={faFolder} />
-      </button>
+      </NavLink>
       <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
@@ -69,7 +79,122 @@ const Toolbar = ({inputRef, onGoToDate, onInputBlur, onInputFocus, onMinus, onPl
   )
 }
 
-const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder, selectAlbum}) => {
+const PhotosBy = ({cache, list, galleryRef, columns, photosBy, photos}) => {
+  const [scrolling, setScrolling] = React.useState(false)
+  const [selected, setSelected] = React.useState(null)
+
+  // TODO: handle reset on plus/minus to clear cache
+  // const cache = React.useRef(new CellMeasurerCache({
+  //   fixedWidth: true,
+  //   defaultHeight: 300,
+  // }))
+  // TODO: accept list so we can be scrolled to
+  // const list = React.useRef(null)
+  // TODO: accept galleryRef so we can be scrolled to
+  // const galleryRef = React.useRef(null)
+
+  const displayed = React.useRef(new CellDisplayedCache())
+  const scrollingRef = React.useRef({timeout: null})
+
+
+  const handleNext = () => {
+    const current = photos.indexOf(selected)
+
+    if (current + 1 < photos.length) {
+      setSelected(photos[current + 1])
+    }
+  }
+
+  const handlePrevious = () => {
+    const current = photos.indexOf(selected)
+
+    if (current > 0) {
+      setSelected(photos[current - 1])
+    }
+  }
+
+  const renderGallery = ({key, index, style, parent, isScrolling, isVisible}) => {
+    const items = photosBy[index].items
+    const date = DateTime
+      .fromFormat(photosBy[index].key, "yyyy-MM-dd")
+      .toLocaleString({weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})
+
+    const renderPhoto = displayed.current.shouldDisplayCell(index, isVisible, isScrolling)
+    const photos = items.map((photo, k) => {
+      const photosSrc = renderPhoto ? `${THUMBNAILS_ROOT}/${photo.path}` : '/placeholder.png'
+      return (
+        <div key={`${index}-${k}`} className="photo">
+          <img src={photosSrc} alt={photo.name} onClick={() => setSelected(photo)} />
+        </div>
+      )
+    })
+
+    return (
+      <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
+        <div className="day-gallery" style={style}>
+          <h2>{date}</h2>
+          <div className={`gallery gallery-${columns}`}>
+            {photos}
+          </div>
+        </div>
+      </CellMeasurer>
+    )
+  }
+
+  const recordScrolling = () => {
+    // ensure state knows we are definitely scrolling
+    setScrolling(true)
+
+    // restart the timeout that signifies scrolling has stopped
+    window.clearTimeout(scrollingRef.current.timeout)
+    scrollingRef.current.timeout = setTimeout(() => {
+      setScrolling(false)
+    }, 2000)
+  }
+
+  const renderGalleries = (width, height) => {
+    return (
+      <List
+        ref={list}
+        className={scrolling ? "galleries scrolling" : "galleries"}
+        width={width}
+        height={height}
+        rowHeight={cache.current.rowHeight}
+        deferredMeasurementCache={cache.current}
+        rowCount={photosBy.length}
+        rowRenderer={renderGallery}
+        onScroll={recordScrolling}
+        scrollToAlignment="start"
+      />
+    )
+  }
+
+  return (
+    <div
+      ref={galleryRef}
+      tabIndex={4}
+      style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
+    >
+      <AutoSizer>
+        {({width, height}) => {
+          return renderGalleries(width, height)
+        }}
+      </AutoSizer>
+      <Showcase
+        selected={selected}
+        onUnselect={() => setSelected(null)}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    </div>
+  )
+}
+
+const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder}) => {
+  const urlSafe = (id) => {
+    return encodeURIComponent(id)
+  }
+
   const albumOrFolder = (item) => {
     if (item.contents) {
       if (expandedFolderIds.indexOf(item.id) >= 0) {
@@ -97,7 +222,7 @@ const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder, selectAlbum}
     } else {
       return (
         <div className="album" key={item.id}>
-          <span className="name" onClick={() => selectAlbum(item)}>{item.name}</span>
+          <Link to={'/albums/' + urlSafe(item.id)} className="name">{item.name}</Link>
         </div>
       )
     }
@@ -108,6 +233,76 @@ const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder, selectAlbum}
       {rootFolder !== null ? rootFolder.contents.map(albumOrFolder, expandedFolderIds) : null}
     </div>
   )
+}
+
+const AlbumContents = ({albums, columns}) => {
+  let { albumId } = useParams();
+
+  const [selected, setSelected] = React.useState(null)
+
+  const renderPhotos = (album) => {
+    const photos = album.photos.map((photo, k) => {
+      const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`
+      return (
+        <div key={k} className="photo">
+          <img src={photosSrc} alt={photo.name} onClick={() => setSelected(photo)} />
+        </div>
+      )
+    })
+
+    return (
+      <div className="day-gallery">
+        <h2>
+          <Link to="/albums">
+            <FontAwesomeIcon className="back" icon={faAngleDoubleLeft} />
+          </Link>
+          <span> {album.name}</span>
+        </h2>
+        <div className={`gallery gallery-${columns}`}>
+          {photos}
+        </div>
+      </div>
+    )
+  }
+
+  const selectedAlbum = (albums || []).filter(a => a.id === decodeURIComponent(albumId))[0]
+
+  const handleNext = () => {
+    const current = selectedAlbum.photos.indexOf(selected)
+
+    if (current + 1 < selectedAlbum.photos.length) {
+      setSelected(selectedAlbum.photos[current + 1])
+    }
+  }
+
+  const handlePrevious = () => {
+    const current = selectedAlbum.photos.indexOf(selected)
+
+    if (current > 0) {
+      setSelected(selectedAlbum.photos[current - 1])
+    }
+  }
+
+  if (selectedAlbum) {
+    return (
+      <div
+        tabIndex={4}
+        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
+      >
+        {renderPhotos(selectedAlbum)}
+        <Showcase
+          selected={selected}
+          onUnselect={() => setSelected(null)}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      </div>
+    )
+  } else {
+    return (
+      <></>
+    )
+  }
 }
 
 const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
@@ -164,12 +359,12 @@ const PHOTOS_ROOT = '/photos'
 const THUMBNAILS_ROOT = '/thumbnails'
 
 const App = () => {
+  const history = useHistory()
+
   const cache = React.useRef(new CellMeasurerCache({
     fixedWidth: true,
     defaultHeight: 300,
   }))
-  const displayed = React.useRef(new CellDisplayedCache())
-  const scrollingRef = React.useRef({timeout: null})
   const list = React.useRef(null)
   const inputRef = React.useRef(null)
   const galleryRef = React.useRef(null)
@@ -179,13 +374,9 @@ const App = () => {
   const [photosBy, setPhotosBy] = React.useState([])
   const [photos, setPhotos] = React.useState([])
   const [columns, setColumns] = React.useState(6)
-  const [selected, setSelected] = React.useState(null)
-  const [scrolling, setScrolling] = React.useState(false)
   const [inputting, setInputting] = React.useState(false)
 
-  const [showAlbumBrowser, setShowAlbumBrowser] = React.useState(false)
-  const [selectedAlbum, setSelectedAlbum] = React.useState(null)
-
+  const [albums, setAlbums] = React.useState(null)
   const [rootFolder, setRootFolder] = React.useState(null)
   const [expandedFolderIds, setExpandedFolderIds] = React.useState([])
 
@@ -234,6 +425,7 @@ const App = () => {
         })
 
         setRootFolder(rootFolder)
+        setAlbums(albums)
       })
   }, [])
 
@@ -250,10 +442,11 @@ const App = () => {
     return () => {
       window.removeEventListener('keydown', handleKeydown)
     }
-  }, [columns, inputting, selected])
+  }, [columns, inputting])
 
   const handleKeydown = (event) => {
-    if (!inputting && !selected) {
+    // TODO: don't trigger when showcase is displayed...
+    if (!inputting) {
       if (event.keyCode === 173) {
         handleMinus()
       } else if (event.keyCode === 61) {
@@ -262,165 +455,6 @@ const App = () => {
         inputRef.current.focus()
         event.preventDefault()
       }
-    }
-  }
-
-  const renderPhotosBy = () => {
-    if (selectedAlbum || showAlbumBrowser) {
-      return null
-    }
-
-    const renderGallery = ({key, index, style, parent, isScrolling, isVisible}) => {
-      const items = photosBy[index].items
-      const date = DateTime
-        .fromFormat(photosBy[index].key, "yyyy-MM-dd")
-        .toLocaleString({weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})
-
-      const renderPhoto = displayed.current.shouldDisplayCell(index, isVisible, isScrolling)
-      const photos = items.map((photo, k) => {
-        const photosSrc = renderPhoto ? `${THUMBNAILS_ROOT}/${photo.path}` : '/placeholder.png'
-        return (
-          <div key={`${index}-${k}`} className="photo">
-            <img src={photosSrc} alt={photo.name} onClick={selectPhoto(photo)}/>
-          </div>
-        )
-      })
-
-      return (
-        <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
-          <div className="day-gallery" style={style}>
-            <h2>{date}</h2>
-            <div className={`gallery gallery-${columns}`}>
-              {photos}
-            </div>
-          </div>
-        </CellMeasurer>
-      )
-    }
-
-    const recordScrolling = () => {
-      // ensure state knows we are definitely scrolling
-      setScrolling(true)
-
-      // restart the timeout that signifies scrolling has stopped
-      window.clearTimeout(scrollingRef.current.timeout)
-      scrollingRef.current.timeout = setTimeout(() => {
-        setScrolling(false)
-      }, 2000)
-    }
-
-    const renderGalleries = (width, height) => {
-      return (
-        <List
-          ref={list}
-          className={scrolling ? "galleries scrolling" : "galleries"}
-          width={width}
-          height={height}
-          rowHeight={cache.current.rowHeight}
-          deferredMeasurementCache={cache.current}
-          rowCount={photosBy.length}
-          rowRenderer={renderGallery}
-          onScroll={recordScrolling}
-          scrollToAlignment="start"
-        />
-      )
-    }
-
-    return (
-      <div
-        ref={galleryRef}
-        tabIndex={4}
-        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
-      >
-        <AutoSizer>
-          {({width, height}) => {
-            return renderGalleries(width, height)
-          }}
-        </AutoSizer>
-      </div>
-    )
-  }
-
-  const renderAlbum = () => {
-    if (!selectedAlbum) {
-      return null
-    }
-
-    const renderPhotos = (album) => {
-      const photos = album.photos.map((photo, k) => {
-        const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`
-        return (
-          <div key={k} className="photo">
-            <img src={photosSrc} alt={photo.name} onClick={selectPhoto(photo)} />
-          </div>
-        )
-      })
-
-      return (
-        <div className="day-gallery">
-          <h2>
-            <FontAwesomeIcon className="back" icon={faAngleDoubleLeft} onClick={() => setSelectedAlbum(null)}/>
-            <span> {album.name}</span>
-          </h2>
-          <div className={`gallery gallery-${columns}`}>
-            {photos}
-          </div>
-        </div>
-      )
-    }
-
-    return (
-      <div
-        tabIndex={4}
-        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
-      >
-        {renderPhotos(selectedAlbum)}
-      </div>
-    )
-  }
-
-  const renderAlbumBrowser = () => {
-    if (!showAlbumBrowser || selectedAlbum) {
-      return null
-    }
-
-    return (
-      <AlbumBrowser
-        rootFolder={rootFolder}
-        expandedFolderIds={expandedFolderIds}
-        toggleFolder={handleToggleFolder}
-        selectAlbum={handleSelectAlbum}
-      />
-    )
-  }
-
-  const selectPhoto = (photo) => {
-    return () => {
-      setSelected(photo)
-    }
-  }
-
-  const unselectPhoto = () => {
-    setSelected(null)
-  }
-
-  const handleNext = () => {
-    const possiblePhotos = selectedAlbum ? selectedAlbum.photos : photos;
-
-    const current = possiblePhotos.indexOf(selected)
-
-    if (current + 1 < possiblePhotos.length) {
-      setSelected(possiblePhotos[current + 1])
-    }
-  }
-
-  const handlePrevious = () => {
-    const possiblePhotos = selectedAlbum ? selectedAlbum.photos : photos;
-
-    const current = possiblePhotos.indexOf(selected)
-
-    if (current > 0) {
-      setSelected(possiblePhotos[current - 1])
     }
   }
 
@@ -489,18 +523,13 @@ const App = () => {
     }
   }
 
+  const handleInputFocus = () => {
+    setInputting(true)
+    history.push('/')
+  }
+
   const handleInputBlur = () => {
     setInputting(false)
-  }
-
-  const handleInputFocus = () => {
-    setSelectedAlbum(null)
-    setShowAlbumBrowser(false)
-    setInputting(true)
-  }
-
-  const handleSelectAlbum = (album) => {
-    setSelectedAlbum(album)
   }
 
   const handleToggleFolder = (id) => {
@@ -511,32 +540,42 @@ const App = () => {
     }
   }
 
-  const handleAlbumBrowserToggle = () => {
-    setShowAlbumBrowser(!showAlbumBrowser)
-    setSelectedAlbum(null)
-  }
-
   return (
     <>
       <Toolbar
         inputRef={inputRef}
-        onAlbums={handleAlbumBrowserToggle}
-        showAlbumBrowser={showAlbumBrowser}
+        list={list}
         onPlus={handlePlus}
         onMinus={handleMinus}
         onGoToDate={handleGoToDate}
         onInputBlur={handleInputBlur}
         onInputFocus={handleInputFocus}
       />
-      {renderPhotosBy()}
-      {renderAlbumBrowser()}
-      {renderAlbum()}
-      <Showcase
-        selected={selected}
-        onUnselect={unselectPhoto}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
+      <Switch>
+        <Route path="/albums/:albumId">
+          <AlbumContents
+            columns={columns}
+            albums={albums}
+          />
+        </Route>
+        <Route path="/albums">
+          <AlbumBrowser
+            rootFolder={rootFolder}
+            expandedFolderIds={expandedFolderIds}
+            toggleFolder={handleToggleFolder}
+          />
+        </Route>
+        <Route path="/">
+          <PhotosBy
+            cache={cache}
+            list={list}
+            galleryRef={galleryRef}
+            photosBy={photosBy}
+            photos={photos}
+            columns={columns}
+          />
+        </Route>
+      </Switch>
     </>
   );
 }
