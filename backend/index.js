@@ -250,6 +250,7 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
   })
 
   app.use('/', express.static(path.join(__dirname, '../frontend/build/')))
+  app.use('/*', express.static(path.join(__dirname, '../frontend/build/index.html')))
 }
 
 
