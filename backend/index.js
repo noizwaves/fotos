@@ -50,11 +50,21 @@ class Photo {
 // Albums
 const ALBUM_REGEX = new RegExp("\.json$")
 
+const ensureNull = (obj) => {
+  if (obj === undefined) {
+    return null
+  }
+
+  return obj
+}
+
 class Album {
-  constructor(id, name, relativePhotoPaths) {
+  constructor(id, name, relativePhotoPaths, galleryType, galleryOptions) {
     this.id = id;
     this.name = name;
     this.relativePhotoPaths = relativePhotoPaths.filter(p => PHOTO_REGEX.test(p));
+    this.galleryType = ensureNull(galleryType)
+    this.galleryOptions = ensureNull(galleryOptions)
   }
 
   verifyContents(photosRootPath) {
@@ -142,7 +152,7 @@ class PhotoLibrary {
         .filter(path => ALBUM_REGEX.test(path))
         .map(path => [relative(this.albumsRootPath, path), fs.readFileSync(path)])
         .map(([id, data]) => [id, JSON.parse(data)])
-        .map(([id, data]) => new Album(id, data.name, data.photos))
+        .map(([id, data]) => new Album(id, data.name, data.photos, data.galleryType, data.galleryOptions))
     this._albums.sort((p1, p2) => p1.id.localeCompare(p2.id))
     console.log('Albums loaded')
 
@@ -176,7 +186,7 @@ class PhotoLibrary {
           .filter(path => ALBUM_REGEX.test(path))
           .map(path => [relative(this.albumsRootPath, path), fs.readFileSync(path)])
           .map(([id, data]) => [id, JSON.parse(data)])
-          .map(([id, data]) => new Album(id, data.name, data.photos))
+          .map(([id, data]) => new Album(id, data.name, data.photos, data.galleryType, data.galleryOptions))
 
       if (this._albums) {
         this._albums = Array.prototype.concat(this._albums, newAlbums)
@@ -241,7 +251,9 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
       return {
         id: a.id,
         name: a.name,
-        photos: a.relativePhotoPaths
+        photos: a.relativePhotoPaths,
+        galleryType: a.galleryType,
+        galleryOptions: a.galleryOptions,
       }
     })
 

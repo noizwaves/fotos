@@ -235,32 +235,71 @@ const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder}) => {
   )
 }
 
+// Gallery Types
+
+const SquareThumbnailContents = ({photos, columns, setSelected}) => {
+  return (
+    <div className={`gallery gallery-${columns}`}>
+      {
+        photos.map((photo, k) => {
+          const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`
+          return (
+            <div key={k} className="photo">
+              <img src={photosSrc} alt={photo.name} onClick={() => setSelected(photo)} />
+            </div>
+          )
+        })
+      }
+    </div>
+  )
+}
+
+const VerticalStripeContents = ({photos, columns, galleryOptions, setSelected}) => {
+  const numStripes = galleryOptions.columns || columns
+  return (
+    <div className={`vertical-strips vertical-strips-${numStripes}`}>
+      {
+        photos.map((photo, k) => {
+          const photosSrc = `${PHOTOS_ROOT}/${photo.path}`
+          const style = {
+            backgroundImage: `url('${photosSrc}')`
+          }
+          return (
+            <div key={k} className="photo" style={style} onClick={() => setSelected(photo)}>
+            </div>
+          )
+        })
+      }
+    </div>
+  )
+}
+
 const AlbumContents = ({albums, columns}) => {
   let { albumId } = useParams();
 
   const [selected, setSelected] = React.useState(null)
 
-  const renderPhotos = (album) => {
-    const photos = album.photos.map((photo, k) => {
-      const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`
-      return (
-        <div key={k} className="photo">
-          <img src={photosSrc} alt={photo.name} onClick={() => setSelected(photo)} />
-        </div>
-      )
-    })
+  const getContentsComponent = (album) => {
+    const galleryType = album.galleryType || 'SquareThumbnails'
 
+    switch (galleryType) {
+      case 'VerticalStripes':
+        return VerticalStripeContents
+      case 'SquareThumbnails':
+        return SquareThumbnailContents;
+      default:
+        throw Error(`Unknown gallery type "${galleryType}"`)
+    }
+  }
+
+  const renderPhotos = (album) => {
+    const Contents = getContentsComponent(album)
     return (
       <div className="day-gallery">
         <h2>
-          <Link to="/albums">
-            <FontAwesomeIcon className="back" icon={faAngleDoubleLeft} />
-          </Link>
           <span> {album.name}</span>
         </h2>
-        <div className={`gallery gallery-${columns}`}>
-          {photos}
-        </div>
+        <Contents photos={album.photos} columns={columns} setSelected={setSelected} galleryOptions={album.galleryOptions}/>
       </div>
     )
   }
