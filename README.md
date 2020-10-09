@@ -10,6 +10,8 @@ A lightweight photo viewer inspired by iCloud Photos.
 1.  Yarn
 1.  Docker (optional)
 
+Easily install the correct versions using [asdf](https://asdf-vm.com) by running `$ asdf install`
+
 ## Getting started
 
 ### Bare metal
