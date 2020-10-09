@@ -20,7 +20,7 @@ Easily install the correct versions using [asdf](https://asdf-vm.com) by running
 1.  Start the backend in one terminal
     1.  `$ cd backend`
     1.  `$ source .envrc.template`
-    1.  `$ npm run dev`
+    1.  `$ yarn start`
 1.  Start the frontend in another terminal
     1.  `$ cd fronend`
     1.  `$ yarn start`

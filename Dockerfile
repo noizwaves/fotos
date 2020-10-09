@@ -3,8 +3,8 @@ FROM node:10.22-alpine
 RUN mkdir -p frontend backend
 ENV NODE_ENV production
 
-ADD backend/package.json backend/package-lock.json backend/
-RUN (cd backend && npm install)
+ADD backend/package.json backend/yarn.lock backend/
+RUN (cd backend && yarn install)
 ADD backend/ backend/
 
 ADD frontend/ frontend/
@@ -19,4 +19,4 @@ ENV PHOTOS_ROOT_PATH /photos/
 ENV THUMBNAILS_ROOT_PATH /thumbnails/
 ENV ALBUMS_ROOT_PATH /albums/
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
