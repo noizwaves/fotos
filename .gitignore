@@ -1,5 +1,5 @@
 node_modules/
 /albums/
 /thumbnails/
-.envrc
+backend/.envrc*
 /fixtures/thumbnails/*

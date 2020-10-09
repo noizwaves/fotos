@@ -269,9 +269,9 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
 //
 // Configuration
 //
-const photosRootPath = process.env.PHOTOS_ROOT_PATH
-const thumbnailsRootPath = process.env.THUMBNAILS_ROOT_PATH
-const albumsRootPath = process.env.ALBUMS_ROOT_PATH
+const photosRootPath = path.resolve(process.env.PHOTOS_ROOT_PATH)
+const thumbnailsRootPath = path.resolve(process.env.THUMBNAILS_ROOT_PATH)
+const albumsRootPath = path.resolve(process.env.ALBUMS_ROOT_PATH)
 const PORT = process.env.PORT || 3001;
 
 
