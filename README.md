@@ -44,3 +44,7 @@ A lightweight photo viewer inspired by iCloud Photos.
 ## Deploying
 
 Some example deployments with Docker can be found in `./examples`.
+
+## Attributions
+
+-  Fixture photos were downloaded from [Pexels](https://www.pexels.com)

@@ -2,3 +2,4 @@ node_modules/
 /albums/
 /thumbnails/
 .envrc
+/fixtures/thumbnails/*
