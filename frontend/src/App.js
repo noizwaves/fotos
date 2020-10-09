@@ -254,8 +254,10 @@ const SquareThumbnailContents = ({photos, columns, setSelected}) => {
   )
 }
 
-const VerticalStripeContents = ({photos, columns, galleryOptions, setSelected}) => {
-  const numStripes = galleryOptions.columns || columns
+const VerticalStripeContents = ({photos, setSelected}) => {
+  const MAX_STRIPES = 12
+  const MIN_STRIPES = 2
+  const numStripes = Math.max(MIN_STRIPES, Math.min(photos.length, MAX_STRIPES))
   return (
     <div className={`vertical-strips vertical-strips-${numStripes}`}>
       {
