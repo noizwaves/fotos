@@ -88,6 +88,7 @@ h2 {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    position: relative;
 }
 
 .gallery > .photo > img {
@@ -336,6 +337,35 @@ h2 {
     width: calc(1 / 12 * 100%);
 }
 
+
+/* Calendar */
+.calendar.gallery {
+    grid-column-gap: unset;
+    grid-row-gap: unset;
+}
+
+.calendar .date {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    text-shadow: 0px 0px 1px #fff;
+    color: #fff;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.calendar.gallery > .photo {
+    border: 1px solid #ccc;
+    height: calc((100vw - 1rem)/7 - 2px);
+    width: calc((100vw - 1rem)/7 - 2px);
+}
+
+@media only screen and (max-width: 640px) {
+    .calendar .date {
+        padding: 0.25rem;
+        font-size: 0.7rem;
+    }
+}
 
 /* Album Browser */
 .album-browser {
