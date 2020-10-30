@@ -469,7 +469,7 @@ const AlbumContents = ({albums, columns}) => {
     return (
       <div
         tabIndex={4}
-        style={{width: "100%", height: "calc(100vh - 3rem - 1px)"}}
+        style={{width: "100%", height: "calc(100vh - 3rem - 1px)", overflow: "scroll", scrollbarWidth: "none"}}
       >
         {renderPhotos(selectedAlbum)}
         <Showcase
