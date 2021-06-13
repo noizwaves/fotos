@@ -1,0 +1,19 @@
+version: 1
+updates:
+  # Frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend/"
+    schedule:
+      interval: "daily"
+
+  # Backend
+  - package-ecosystem: "npm"
+    directory: "/backend/"
+    schedule:
+      interval: "daily"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
