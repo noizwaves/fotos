@@ -1,4 +1,4 @@
-FROM node:10.22-alpine
+FROM node:10.24-alpine
 
 RUN mkdir -p frontend backend
 ENV NODE_ENV production
