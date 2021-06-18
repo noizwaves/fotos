@@ -28,15 +28,15 @@ Easily install the correct versions using [asdf](https://asdf-vm.com) by running
 
 ### With Docker
 
-1.  Build image locally `$ docker build -t fotos .`
 1.  Start container locally
     ```
     $ docker run \
         -p 3000:3000 \
         -v $(pwd)/fixtures/photos:/photos:ro \
         -v $(pwd)/fixtures/albums:/albums:ro \
+        -it \
         --rm \
-        fotos
+        ghcr.io/noizwaves/fotos:latest
     ```
 1.  Open [fotos](http://localhost:3000/) in a web browser
 
