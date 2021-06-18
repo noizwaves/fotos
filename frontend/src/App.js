@@ -505,7 +505,7 @@ const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
         window.removeEventListener('keydown', handleKeydown)
       }
     }
-  }, [selected])
+  })
 
   if (!selected) {
     return null
@@ -624,7 +624,7 @@ const App = () => {
     return () => {
       window.removeEventListener('keydown', handleKeydown)
     }
-  }, [columns, inputting])
+  })
 
   const handleKeydown = (event) => {
     // TODO: don't trigger when showcase is displayed...
