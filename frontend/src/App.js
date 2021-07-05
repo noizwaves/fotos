@@ -511,9 +511,22 @@ const Showcase = ({selected, onUnselect, onNext, onPrevious}) => {
     return null
   }
 
+  const preventDefault = (e) => {
+    e.stopPropagation()
+  }
+
   return (
     <div className="showcase" onClick={onUnselect}>
       <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.name}/>
+      <div className="links">
+        <a href={`${SMALL_ROOT}/${selected.path}`} onClick={preventDefault} target="_blank" rel="noopener noreferrer">Small</a>
+        {' '}|{' '}
+        <a href={`${MEDIUM_ROOT}/${selected.path}`} onClick={preventDefault} target="_blank" rel="noopener noreferrer">Medium</a>
+        {' '}|{' '}
+        <a href={`${LARGE_ROOT}/${selected.path}`} onClick={preventDefault} target="_blank" rel="noopener noreferrer">Large</a>
+        {' '}|{' '}
+        <a href={`${PHOTOS_ROOT}/${selected.path}`} onClick={preventDefault} target="_blank" rel="noopener noreferrer">Original</a>
+      </div>
     </div>
   )
 }
@@ -537,8 +550,13 @@ const makePhoto = (path) => {
 
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
+
 const PHOTOS_ROOT = '/photos'
 const THUMBNAILS_ROOT = '/thumbnails'
+const RESIZED_ROOT = '/resized'
+const SMALL_ROOT = `${RESIZED_ROOT}/small`
+const MEDIUM_ROOT = `${RESIZED_ROOT}/medium`
+const LARGE_ROOT = `${RESIZED_ROOT}/large`
 
 const App = () => {
   const history = useHistory()

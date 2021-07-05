@@ -417,3 +417,13 @@ h2 {
     max-width: calc(100vw - 60px);
     max-height: calc(100vh - 60px);
 }
+
+.showcase > .links {
+    position: absolute;
+    bottom: 6px;
+}
+
+.showcase > .links > a {
+    text-decoration: none;
+    color: black;
+}
