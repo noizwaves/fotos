@@ -108,6 +108,21 @@ const generateThumbnailFile = async (photosRootPath, thumbnailsRootPath, photo) 
   return Promise.resolve()
 }
 
+const resizeDimensions = {
+  small: {width: 512, height: 384},
+  medium: {width: 1024, height: 768},
+  large: {width: 2048, height: 1536},
+}
+
+const generateResizedImage = async (photosRootPath, size, photo) => {
+  const imagePath = path.join(photosRootPath, photo.relativePath)
+  const { width, height } = resizeDimensions[size]
+
+  return sharp(imagePath)
+    .resize(width, height, {fit: 'outside', withoutEnlargement: true})
+    .toBuffer()
+}
+
 
 //
 // Application state
@@ -236,6 +251,30 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
   app.use('/photos', express.static(photosRootPath))
 
   app.use('/thumbnails', express.static(thumbnailsRootPath))
+
+  app.get('/resized/:size(small|medium|large)/:year(\\d{4,4})/:month(\\d{2,2})/:day(\\d{2,2})/:filename.:extension', (req, res) => {
+    const { size, year, month, day, filename, extension } = req.params
+    const requestedRelativePath = `${year}/${month}/${day}/${filename}.${extension}`
+
+    // finding a photo seems like a responsibility of the library
+    const matchingPhoto = library.photos.filter(p => p.relativePath === requestedRelativePath)
+
+    if (matchingPhoto.length === 0) {
+      res.status(404).end()
+    } else {
+      generateResizedImage(photosRootPath, size, matchingPhoto[0])
+        .then((resized) => {
+          res
+            .type(extension)
+            .send(resized)
+            .end()
+        })
+        .catch((err) => {
+          console.error(err)
+          res.send(500)
+        })
+    }
+  })
 
   app.get('/api/photos', (req, res) => {
     const photoJson = library.photos.map(p => {
