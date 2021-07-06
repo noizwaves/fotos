@@ -120,6 +120,7 @@ const generateResizedImage = async (photosRootPath, size, photo) => {
 
   return sharp(imagePath)
     .resize(width, height, {fit: 'outside', withoutEnlargement: true})
+    .withMetadata()
     .toBuffer()
 }
 
