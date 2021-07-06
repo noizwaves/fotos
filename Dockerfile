@@ -33,7 +33,7 @@ COPY --from=frontend /frontend/build /frontend/build
 
 # runtime dependencies
 COPY backend/package.json backend/yarn.lock /backend/
-RUN yarn install
+RUN yarn install --cache-folder /tmp/yarn-cache && rm -rf /tmp/yarn-cache
 
 ENV PORT 3000
 EXPOSE 3000
