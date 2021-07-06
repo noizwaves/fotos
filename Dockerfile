@@ -1,17 +1,39 @@
-FROM node:10.24-alpine
+FROM node:10.24-alpine as base
 
 RUN mkdir -p frontend backend
 
-ADD backend/package.json backend/yarn.lock backend/
-RUN (cd backend && yarn install)
-ADD backend/ backend/
-RUN (cd backend && yarn build)
+FROM base as backend
+WORKDIR backend
 
+# build dependencies
+COPY backend/package.json backend/yarn.lock ./
+RUN yarn install
+
+# build
+COPY backend/ ./
+RUN yarn build
+
+FROM base as frontend
+WORKDIR frontend
+
+# build dependencies
+COPY frontend/package.json frontend/yarn.lock ./
+RUN yarn install
+
+# build
+COPY frontend/ ./
+RUN yarn build
+
+FROM base as release
+WORKDIR /backend
 ENV NODE_ENV production
-ADD frontend/ frontend/
-RUN (cd frontend && yarn install && yarn build && rm -rf node_modules)
 
-WORKDIR "backend"
+COPY --from=backend /backend/dist /backend/dist
+COPY --from=frontend /frontend/build /frontend/build
+
+# runtime dependencies
+COPY backend/package.json backend/yarn.lock /backend/
+RUN yarn install
 
 ENV PORT 3000
 EXPOSE 3000
