@@ -1,5 +1,4 @@
 const express = require('express')
-const process = require('process')
 const {resolve, relative} = require('path')
 const {readdir, mkdir} = require('fs').promises
 const fs = require('fs');
@@ -27,6 +26,12 @@ async function getFiles(dir) {
 const PHOTO_REGEX = new RegExp("^(?<year>[\\d]{4})\\/(?<month>[\\d]{1,2})\\/(?<day>[\\d]{1,2})\\/(?<filename>.*\.(jpg|png))$", 'i')
 
 class Photo {
+  private year: number;
+  private month: number;
+  private day: number;
+  private filename: any;
+  private relativePath: any;
+
   static get PATH_PATTERN() {
     return PHOTO_REGEX
   }
@@ -59,6 +64,12 @@ const ensureNull = (obj) => {
 }
 
 class Album {
+  private id: any;
+  private name: any;
+  private relativePhotoPaths: any;
+  private galleryType: any;
+  private galleryOptions: any;
+
   constructor(id, name, relativePhotoPaths, galleryType, galleryOptions) {
     this.id = id;
     this.name = name;
@@ -129,6 +140,12 @@ const generateResizedImage = async (photosRootPath, size, photo) => {
 // Application state
 //
 class PhotoLibrary {
+  private photosRootPath: any;
+  private thumbnailsRootPath: any;
+  private albumsRootPath: any;
+  private _photos: any;
+  private _albums: any;
+
   constructor(photosRootPath, thumbnailsRootPath, albumsRootPath) {
     this.photosRootPath = photosRootPath
     this.thumbnailsRootPath = thumbnailsRootPath
