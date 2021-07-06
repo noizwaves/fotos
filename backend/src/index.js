@@ -301,8 +301,8 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
     res.send(JSON.stringify(albumsJson))
   })
 
-  app.use('/', express.static(path.join(__dirname, '../frontend/build/')))
-  app.use('/*', express.static(path.join(__dirname, '../frontend/build/index.html')))
+  app.use('/', express.static(path.join(__dirname, '../../frontend/build/')))
+  app.use('/*', express.static(path.join(__dirname, '../../frontend/build/index.html')))
 }
 
 
