@@ -6,7 +6,7 @@ stdenv.mkDerivation {
   buildInputs = [
     stdenv
 
-    nodejs-10_x
+    nodejs-16_x
     yarn
   ];
 }

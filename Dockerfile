@@ -1,4 +1,4 @@
-FROM node:10.24-alpine as base
+FROM node:16.13.0-alpine as base
 
 RUN mkdir -p frontend backend
 
