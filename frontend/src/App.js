@@ -441,6 +441,9 @@ const AlbumContents = ({albums, columns}) => {
       <div className="day-gallery">
         <h2>
           <span> {album.name}</span>
+          <span className="actions">
+            <a href={`/albums/${encodeURIComponent(album.id)}/edit`}>Edit</a>
+          </span>
         </h2>
         <Contents photos={album.photos} columns={columns} setSelected={setSelected} galleryOptions={album.galleryOptions}/>
       </div>
