@@ -119,7 +119,6 @@ const getFirstDayOfWeek = (locale) => {
  * @returns {luxon.DateTime}
  */
 const floorToWeek = (date) => {
-  console.log(date.locale)
   const fd = getFirstDayOfWeek(date.locale);
   const day = date.weekday % 7;	// convert to 0=sunday .. 6=saturday
   const dayAdjust =  day >= fd ? -day + fd : -day + fd - 7;
@@ -327,7 +326,7 @@ const AlbumBrowser = ({rootFolder, expandedFolderIds, toggleFolder}) => {
 }
 
 
-// Gallery components
+// Gallery viewing components
 
 const SquareThumbnailContents = ({photos, columns, setSelected}) => {
   return (
@@ -441,6 +440,9 @@ const AlbumContents = ({albums, columns}) => {
       <div className="day-gallery">
         <h2>
           <span> {album.name}</span>
+          <span className="actions">
+            <a href={`/albums/${encodeURIComponent(album.id)}/edit`}>Edit</a>
+          </span>
         </h2>
         <Contents photos={album.photos} columns={columns} setSelected={setSelected} galleryOptions={album.galleryOptions}/>
       </div>
@@ -548,6 +550,98 @@ const makePhoto = (path) => {
   }
 }
 
+// Album editing components
+const movePhoto = (photos, newIndex, photo) => {
+  const newPhotos = photos.map(e => e)
+  newPhotos.splice(newPhotos.findIndex(e => e === photo), 1)
+  newPhotos.splice(newIndex, 0, photo)
+  return newPhotos
+}
+
+const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
+  const thumbnailSrc = `${THUMBNAILS_ROOT}/${photo.path}`
+  return (
+    <div className="editAlbumPhoto">
+      <div className="thumbnail">
+        <img src={thumbnailSrc} alt={photo.name} />
+      </div>
+      <span className="path">{photo.path}</span>
+      <div className="actions">
+        <button disabled={isFirst} onClick={() => onMoveUp(photo)}>Up</button>
+        <button disabled={isLast} onClick={() => onMoveDown(photo)}>Down</button>
+      </div>
+    </div>
+  )
+}
+
+const EditAlbum = ({ album, onUpdateAlbum }) => {
+  const history = useHistory()
+
+  const [photos, setPhotos] = React.useState(album.photos)
+
+  const onMoveDown = (photo) => {
+    const originalIndex = photos.findIndex(p => p == photo)
+    const newIndex = originalIndex + 1
+    const newPhotos = movePhoto(album.photos, newIndex, photo)
+    setPhotos(newPhotos)
+  }
+
+  const onMoveUp = (photo) => {
+    const originalIndex = photos.findIndex(p => p == photo)
+    const newIndex = originalIndex - 1
+    const newPhotos = movePhoto(photos, newIndex, photo)
+    setPhotos(newPhotos)
+  }
+
+  const onCancel = () => {
+    history.push(`/albums/${encodeURIComponent(album.id)}`)
+  }
+
+  const photoElements = photos.map((p, i) => (
+    <EditAlbumPhoto
+      key={i}
+      photo={p}
+      isFirst={i === 0}
+      isLast={i === (photos.length - 1)}
+      onMoveDown={onMoveDown}
+      onMoveUp={onMoveUp}
+    />
+  ))
+
+  return (
+    <div className="editAlbum">
+      <h2>{album.name}</h2>
+      <div className="editAlbum--photos">
+        {photoElements}
+      </div>
+      <div className="editAlbum--actions">
+        <button onClick={() => onUpdateAlbum(album, photos)}>Update</button>
+        <button onClick={() => onCancel()}>Cancel</button>
+      </div>
+    </div>
+  )
+}
+
+const EditAlbumPage = ({ albums, onUpdateAlbum }) => {
+  const albumId = decodeURIComponent(useParams().albumId)
+
+  if (albums === null) {
+    return (<div>Loading...</div>)
+  }
+
+  const album = albums.find(a => a.id === albumId);
+  if (album === null) {
+    return (<div>Album not found</div>)
+  }
+
+  return (
+    <div className="editAlbumPage">
+      <EditAlbum album={album} onUpdateAlbum={onUpdateAlbum} />
+    </div>
+  )
+}
+
+// Bootstrap application
 const MAX_COLUMNS = 12;
 const MIN_COLUMNS = 2;
 
@@ -592,6 +686,42 @@ const App = () => {
         setPhotosBy(photosBy)
       })
   }, [])
+
+  const fetchAlbums = () => {
+    axios.get('/api/albums')
+      .then(response => {
+        const albums = response.data.map((album) => {
+          return {...album, photos: album.photos.map(makePhoto)}
+        })
+
+        const rootFolder = {name: 'Root Folder', id: '/', contents: []}
+
+        albums.forEach(album => {
+          // create folders for this album
+          const folderNames = album.id.split('/')
+
+          let current = rootFolder
+
+          for (let i = 0; i < folderNames.length - 1; i++) {
+            const folderName = folderNames[i]
+            const existing = current.contents.find(item => item.contents && item.name === folderName)
+            if (existing) {
+              current = existing
+            } else {
+              const newFolder = {id: `${current.id}${folderName}/`, name: folderName, contents: []}
+              current.contents.push(newFolder)
+              current = newFolder
+            }
+          }
+
+          // put album in folder
+          current.contents.push(album)
+        })
+
+        setRootFolder(rootFolder)
+        setAlbums(albums)
+      })
+  }
 
   React.useEffect(() => {
     axios.get('/api/albums')
@@ -694,7 +824,7 @@ const App = () => {
         list.current.scrollToRow(row)
         focusOnList()
       } else {
-        console.log(`date ${value} not found`)
+        console.error(`date ${value} not found`)
       }
     } else if (value.length === 7) {
       // find the month
@@ -706,7 +836,7 @@ const App = () => {
         list.current.scrollToRow(keys.indexOf(monthKey))
         focusOnList()
       } else {
-        console.log(`month ${value} not found`)
+        console.error(`month ${value} not found`)
       }
     } else if (value.length === 4) {
       // find the year
@@ -718,7 +848,7 @@ const App = () => {
         list.current.scrollToRow(keys.indexOf(yearKey))
         focusOnList()
       } else {
-        console.log(`year ${value} not found`)
+        console.error(`year ${value} not found`)
       }
     }
   }
@@ -740,6 +870,23 @@ const App = () => {
     }
   }
 
+  const handleAlbumEdit = (album, newPhotos) => {
+    const body = {
+      photos: newPhotos.map(p => p.path)
+    }
+    axios.patch(`/api/albums/${encodeURIComponent(album.id)}`, body)
+      .then(_ => {
+        // Reload album by fetching ALL albums
+        // TODO: use updated album in response to update just single album
+        fetchAlbums()
+
+        history.push(`/albums/${encodeURIComponent(album.id)}`)
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  }
+
   return (
     <>
       <Toolbar
@@ -752,6 +899,12 @@ const App = () => {
         onInputFocus={handleInputFocus}
       />
       <Switch>
+        <Route path="/albums/:albumId/edit">
+          <EditAlbumPage
+            albums={albums}
+            onUpdateAlbum={handleAlbumEdit}
+           />
+        </Route>
         <Route path="/albums/:albumId">
           <AlbumContents
             columns={columns}

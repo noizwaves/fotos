@@ -1,6 +1,8 @@
+import { join } from "path";
+
 const express = require('express')
 const {resolve, relative} = require('path')
-const {readdir, mkdir} = require('fs').promises
+const {readdir, mkdir, writeFile} = require('fs').promises
 const fs = require('fs');
 const path = require('path')
 const sharp = require('sharp')
@@ -85,6 +87,27 @@ class Album {
         console.log(`Error in Album ${this.id}: Cannot find ${p}`)
       }
     })
+  }
+
+  toJSON() {
+    const dto: any = {
+      name: this.name,
+      photos: this.relativePhotoPaths,
+    }
+
+    if (this.galleryType !== null && this.galleryType !== undefined) {
+      dto.galleryType = this.galleryType
+    }
+
+    if (this.galleryOptions !== null && this.galleryOptions !== undefined) {
+      dto.galleryOptions = this.galleryOptions
+    }
+
+    return JSON.stringify(dto, null, 2)
+  }
+
+  writeToDisk(albumsRootPath) {
+    return writeFile(join(albumsRootPath, this.id), this.toJSON())
   }
 }
 
@@ -251,6 +274,18 @@ class PhotoLibrary {
         addAlbum(path)
       })
   }
+
+  async updateAlbum(id: any, photoPaths: string[]) {
+    const previous = this._albums.find(a => a.id === id)
+    const newAlbum = new Album(id, previous.name, photoPaths, previous.galleryType, previous.galleryOptions)
+    
+    // update state immediately as file detection isn't instantaneous
+    this._albums[this._albums.indexOf(previous)] = newAlbum;
+    
+    await newAlbum.writeToDisk(albumsRootPath)
+    
+    return newAlbum;
+  }
 }
 
 const loadApplicationState = async (photosRootPath, thumbnailsRootPath, albumsRootPath) => {
@@ -318,6 +353,17 @@ const buildApplication = ({photosRootPath, thumbnailsRootPath, library}, app) =>
     res.send(JSON.stringify(albumsJson))
   })
 
+  app.patch('/api/albums/:id', async (req, res) => {
+    // TODO: Validate photos exist
+    // TODO: update json
+    // update library
+    const album = await library.updateAlbum(req.params.id, req.body.photos)
+    
+    res.setHeader('Content-Type', 'application/json')
+    res.status(200)
+    res.send(JSON.stringify(album))
+  })
+
   app.use('/', express.static(path.join(__dirname, '../../frontend/build/')))
   app.use('/*', express.static(path.join(__dirname, '../../frontend/build/index.html')))
 }
@@ -338,6 +384,7 @@ const PORT = process.env.PORT || 3001;
 loadApplicationState(photosRootPath, thumbnailsRootPath, albumsRootPath)
   .then(state => {
     const app = express()
+    app.use(express.json())
 
     buildApplication(state, app)
 
