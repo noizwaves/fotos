@@ -9,7 +9,7 @@
 
 .toolbar .button {
     border: none;
-    color: #AAA;
+    color: #aaa;
     background-color: transparent;
     font-size: 2rem;
     cursor: pointer;
@@ -69,7 +69,7 @@ h2 {
     font-size: 1rem;
     font-weight: 600;
     padding: 1rem;
-    border-top: 1px solid #DDD;
+    border-top: 1px solid #ddd;
     margin-top: 1rem;
 }
 
@@ -108,8 +108,8 @@ h2 {
 }
 
 .gallery.gallery-2 > .photo {
-    height: calc((100vw - 1.5rem)/2);
-    width: calc((100vw - 1.5rem)/2);
+    height: calc((100vw - 1.5rem) / 2);
+    width: calc((100vw - 1.5rem) / 2);
 }
 
 /* 3 per row */
@@ -118,8 +118,8 @@ h2 {
 }
 
 .gallery.gallery-3 > .photo {
-    height: calc((100vw - 2rem)/3);
-    width: calc((100vw - 2rem)/3);
+    height: calc((100vw - 2rem) / 3);
+    width: calc((100vw - 2rem) / 3);
 }
 
 /* 4 per row */
@@ -128,8 +128,8 @@ h2 {
 }
 
 .gallery.gallery-4 > .photo {
-    height: calc((100vw - 2.5rem)/4);
-    width: calc((100vw - 2.5rem)/4);
+    height: calc((100vw - 2.5rem) / 4);
+    width: calc((100vw - 2.5rem) / 4);
 }
 
 /* 5 per row */
@@ -138,8 +138,8 @@ h2 {
 }
 
 .gallery.gallery-5 > .photo {
-    height: calc((100vw - 3rem)/5);
-    width: calc((100vw - 3rem)/5);
+    height: calc((100vw - 3rem) / 5);
+    width: calc((100vw - 3rem) / 5);
 }
 
 /* 6 per row */
@@ -148,8 +148,8 @@ h2 {
 }
 
 .gallery.gallery-6 > .photo {
-    height: calc((100vw - 3.5rem)/6);
-    width: calc((100vw - 3.5rem)/6);
+    height: calc((100vw - 3.5rem) / 6);
+    width: calc((100vw - 3.5rem) / 6);
 }
 
 /* 7 per row */
@@ -158,8 +158,8 @@ h2 {
 }
 
 .gallery.gallery-7 > .photo {
-    height: calc((100vw - 4rem)/7);
-    width: calc((100vw - 4rem)/7);
+    height: calc((100vw - 4rem) / 7);
+    width: calc((100vw - 4rem) / 7);
 }
 
 /* 8 per row */
@@ -168,8 +168,8 @@ h2 {
 }
 
 .gallery.gallery-8 > .photo {
-    height: calc((100vw - 4.5rem)/8);
-    width: calc((100vw - 4.5rem)/8);
+    height: calc((100vw - 4.5rem) / 8);
+    width: calc((100vw - 4.5rem) / 8);
 }
 
 /* 9 per row */
@@ -178,8 +178,8 @@ h2 {
 }
 
 .gallery.gallery-9 > .photo {
-    height: calc((100vw - 5rem)/9);
-    width: calc((100vw - 5rem)/9);
+    height: calc((100vw - 5rem) / 9);
+    width: calc((100vw - 5rem) / 9);
 }
 
 /* 10 per row */
@@ -188,8 +188,8 @@ h2 {
 }
 
 .gallery.gallery-10 > .photo {
-    height: calc((100vw - 5.5rem)/10);
-    width: calc((100vw - 5.5rem)/10);
+    height: calc((100vw - 5.5rem) / 10);
+    width: calc((100vw - 5.5rem) / 10);
 }
 
 /* 11 per row */
@@ -198,8 +198,8 @@ h2 {
 }
 
 .gallery.gallery-11 > .photo {
-    height: calc((100vw - 6rem)/11);
-    width: calc((100vw - 6rem)/11);
+    height: calc((100vw - 6rem) / 11);
+    width: calc((100vw - 6rem) / 11);
 }
 
 /* 12 per row */
@@ -208,8 +208,8 @@ h2 {
 }
 
 .gallery.gallery-12 > .photo {
-    height: calc((100vw - 6.5rem)/12);
-    width: calc((100vw - 6.5rem)/12);
+    height: calc((100vw - 6.5rem) / 12);
+    width: calc((100vw - 6.5rem) / 12);
 }
 
 @media only screen and (max-width: 640px) {
@@ -220,59 +220,60 @@ h2 {
     }
 
     .gallery.gallery-2 > .photo {
-        height: calc((100vw - 0.3rem)/2);
-        width: calc((100vw - 0.3rem)/2);
+        height: calc((100vw - 0.3rem) / 2);
+        width: calc((100vw - 0.3rem) / 2);
     }
 
     .gallery.gallery-3 > .photo {
-        height: calc((100vw - 0.4rem)/3);
-        width: calc((100vw - 0.4rem)/3);
+        height: calc((100vw - 0.4rem) / 3);
+        width: calc((100vw - 0.4rem) / 3);
     }
 
     .gallery.gallery-4 > .photo {
-        height: calc((100vw - 0.5rem)/4);
-        width: calc((100vw - 0.5rem)/4);
+        height: calc((100vw - 0.5rem) / 4);
+        width: calc((100vw - 0.5rem) / 4);
     }
 
     .gallery.gallery-5 > .photo {
-        height: calc((100vw - 0.6rem)/5);
-        width: calc((100vw - 0.6rem)/5);
+        height: calc((100vw - 0.6rem) / 5);
+        width: calc((100vw - 0.6rem) / 5);
     }
 
     .gallery.gallery-6 > .photo {
-        height: calc((100vw - 0.7rem)/6);
-        width: calc((100vw - 0.7rem)/6);
+        height: calc((100vw - 0.7rem) / 6);
+        width: calc((100vw - 0.7rem) / 6);
     }
 
     .gallery.gallery-7 > .photo {
-        height: calc((100vw - 0.8rem)/7);
-        width: calc((100vw - 0.8rem)/7);
+        height: calc((100vw - 0.8rem) / 7);
+        width: calc((100vw - 0.8rem) / 7);
     }
 
     .gallery.gallery-8 > .photo {
-        height: calc((100vw - 0.9rem)/8);
-        width: calc((100vw - 0.9rem)/8);
+        height: calc((100vw - 0.9rem) / 8);
+        width: calc((100vw - 0.9rem) / 8);
     }
 
     .gallery.gallery-9 > .photo {
-        height: calc((100vw - 1rem)/9);
-        width: calc((100vw - 1rem)/9);
+        height: calc((100vw - 1rem) / 9);
+        width: calc((100vw - 1rem) / 9);
     }
 
     .gallery.gallery-10 > .photo {
-        height: calc((100vw - 1.1rem)/10);
-        width: calc((100vw - 1.1rem)/10);
+        height: calc((100vw - 1.1rem) / 10);
+        width: calc((100vw - 1.1rem) / 10);
     }
 
     .gallery.gallery-11 > .photo {
-        height: calc((100vw - 1.2rem)/11);
-        width: calc((100vw - 1.2rem)/11);
+        height: calc((100vw - 1.2rem) / 11);
+        width: calc((100vw - 1.2rem) / 11);
     }
 
     .gallery.gallery-12 > .photo {
-        height: calc((100vw - 1.3rem)/12);
-        width: calc((100vw - 1.3rem)/12);
-    }}
+        height: calc((100vw - 1.3rem) / 12);
+        width: calc((100vw - 1.3rem) / 12);
+    }
+}
 
 /* Vertical Strips gallery */
 
@@ -341,7 +342,6 @@ h2 {
     width: calc(1 / 12 * 100%);
 }
 
-
 /* Calendar */
 .calendar.gallery {
     grid-column-gap: unset;
@@ -360,8 +360,8 @@ h2 {
 
 .calendar.gallery > .photo {
     border: 1px solid #ccc;
-    height: calc((100vw - 1rem)/7 - 2px);
-    width: calc((100vw - 1rem)/7 - 2px);
+    height: calc((100vw - 1rem) / 7 - 2px);
+    width: calc((100vw - 1rem) / 7 - 2px);
 }
 
 @media only screen and (max-width: 640px) {
@@ -401,7 +401,6 @@ h2 {
     text-decoration: none;
     color: black;
 }
-
 
 /* Showcase */
 .showcase {
