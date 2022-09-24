@@ -575,7 +575,7 @@ const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
   )
 }
 
-const EditAlbum = ({ album }) => {
+const EditAlbum = ({ album, onUpdateAlbum }) => {
   console.log(album)
   const [photos, setPhotos] = React.useState(album.photos)
 
@@ -611,13 +611,14 @@ const EditAlbum = ({ album }) => {
         {photoElements}
       </div>
       <div className="editAlbum--actions">
-        <button>Update</button>
+        <button onClick={() => onUpdateAlbum(album, photos)}>Update</button>
+        <button>Cancel</button>
       </div>
     </div>
   )
 }
 
-const EditAlbumPage = ({ albums }) => {
+const EditAlbumPage = ({ albums, onUpdateAlbum }) => {
   const albumId = decodeURIComponent(useParams().albumId)
 
   if (albums === null) {
@@ -631,7 +632,7 @@ const EditAlbumPage = ({ albums }) => {
 
   return (
     <div className="editAlbumPage">
-      <EditAlbum album={album} />
+      <EditAlbum album={album} onUpdateAlbum={onUpdateAlbum} />
     </div>
   )
 }
@@ -681,6 +682,42 @@ const App = () => {
         setPhotosBy(photosBy)
       })
   }, [])
+
+  const fetchAlbums = () => {
+    axios.get('/api/albums')
+      .then(response => {
+        const albums = response.data.map((album) => {
+          return {...album, photos: album.photos.map(makePhoto)}
+        })
+
+        const rootFolder = {name: 'Root Folder', id: '/', contents: []}
+
+        albums.forEach(album => {
+          // create folders for this album
+          const folderNames = album.id.split('/')
+
+          let current = rootFolder
+
+          for (let i = 0; i < folderNames.length - 1; i++) {
+            const folderName = folderNames[i]
+            const existing = current.contents.find(item => item.contents && item.name === folderName)
+            if (existing) {
+              current = existing
+            } else {
+              const newFolder = {id: `${current.id}${folderName}/`, name: folderName, contents: []}
+              current.contents.push(newFolder)
+              current = newFolder
+            }
+          }
+
+          // put album in folder
+          current.contents.push(album)
+        })
+
+        setRootFolder(rootFolder)
+        setAlbums(albums)
+      })
+  }
 
   React.useEffect(() => {
     axios.get('/api/albums')
@@ -829,6 +866,23 @@ const App = () => {
     }
   }
 
+  const handleAlbumEdit = (album, newPhotos) => {
+    const body = {
+      photos: newPhotos.map(p => p.path)
+    }
+    axios.patch(`/api/albums/${encodeURIComponent(album.id)}`, body)
+      .then(_ => {
+        // Reload album by fetching ALL albums
+        // TODO: use updated album in response to update just single album
+        fetchAlbums()
+
+        history.push(`/albums/${encodeURIComponent(album.id)}`)
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  }
+
   return (
     <>
       <Toolbar
@@ -844,6 +898,7 @@ const App = () => {
         <Route path="/albums/:albumId/edit">
           <EditAlbumPage
             albums={albums}
+            onUpdateAlbum={handleAlbumEdit}
            />
         </Route>
         <Route path="/albums/:albumId">
