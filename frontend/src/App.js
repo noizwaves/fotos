@@ -119,7 +119,6 @@ const getFirstDayOfWeek = (locale) => {
  * @returns {luxon.DateTime}
  */
 const floorToWeek = (date) => {
-  console.log(date.locale)
   const fd = getFirstDayOfWeek(date.locale);
   const day = date.weekday % 7;	// convert to 0=sunday .. 6=saturday
   const dayAdjust =  day >= fd ? -day + fd : -day + fd - 7;
@@ -576,7 +575,8 @@ const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
 }
 
 const EditAlbum = ({ album, onUpdateAlbum }) => {
-  console.log(album)
+  const history = useHistory()
+
   const [photos, setPhotos] = React.useState(album.photos)
 
   const onMoveDown = (photo) => {
@@ -591,6 +591,10 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
     const newIndex = originalIndex - 1
     const newPhotos = movePhoto(photos, newIndex, photo)
     setPhotos(newPhotos)
+  }
+
+  const onCancel = () => {
+    history.push(`/albums/${encodeURIComponent(album.id)}`)
   }
 
   const photoElements = photos.map((p, i) => (
@@ -612,7 +616,7 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
       </div>
       <div className="editAlbum--actions">
         <button onClick={() => onUpdateAlbum(album, photos)}>Update</button>
-        <button>Cancel</button>
+        <button onClick={() => onCancel()}>Cancel</button>
       </div>
     </div>
   )
@@ -820,7 +824,7 @@ const App = () => {
         list.current.scrollToRow(row)
         focusOnList()
       } else {
-        console.log(`date ${value} not found`)
+        console.error(`date ${value} not found`)
       }
     } else if (value.length === 7) {
       // find the month
@@ -832,7 +836,7 @@ const App = () => {
         list.current.scrollToRow(keys.indexOf(monthKey))
         focusOnList()
       } else {
-        console.log(`month ${value} not found`)
+        console.error(`month ${value} not found`)
       }
     } else if (value.length === 4) {
       // find the year
@@ -844,7 +848,7 @@ const App = () => {
         list.current.scrollToRow(keys.indexOf(yearKey))
         focusOnList()
       } else {
-        console.log(`year ${value} not found`)
+        console.error(`year ${value} not found`)
       }
     }
   }
