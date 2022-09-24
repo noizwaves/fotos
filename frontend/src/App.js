@@ -580,14 +580,14 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
   const [photos, setPhotos] = React.useState(album.photos)
 
   const onMoveDown = (photo) => {
-    const originalIndex = photos.findIndex(p => p == photo)
+    const originalIndex = photos.findIndex(p => p === photo)
     const newIndex = originalIndex + 1
     const newPhotos = movePhoto(album.photos, newIndex, photo)
     setPhotos(newPhotos)
   }
 
   const onMoveUp = (photo) => {
-    const originalIndex = photos.findIndex(p => p == photo)
+    const originalIndex = photos.findIndex(p => p === photo)
     const newIndex = originalIndex - 1
     const newPhotos = movePhoto(photos, newIndex, photo)
     setPhotos(newPhotos)
