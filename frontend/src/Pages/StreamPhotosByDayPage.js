@@ -101,10 +101,12 @@ const StreamPhotosByDayPage = ({
         columnIndex={0}
         rowIndex={index}
       >
-        <div className="day-gallery" style={style}>
-          <h2>{date}</h2>
-          <div className={`gallery gallery-${columns}`}>{photos}</div>
-        </div>
+        {({ registerChild }) => (
+          <div ref={registerChild} className="day-gallery" style={style}>
+            <h2>{date}</h2>
+            <div className={`gallery gallery-${columns}`}>{photos}</div>
+          </div>
+        )}
       </CellMeasurer>
     );
   };

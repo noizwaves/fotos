@@ -27,6 +27,9 @@ const Toolbar = ({
     setValue(event.target.value);
   };
 
+  const navLinkClasses = ({ isActive }) =>
+    isActive ? "button selected" : "button";
+
   return (
     <div className="toolbar">
       <button className="button" onClick={onPlus}>
@@ -35,15 +38,10 @@ const Toolbar = ({
       <button className="button" onClick={onMinus}>
         <FontAwesomeIcon icon={faMinus} />
       </button>
-      <NavLink
-        to="/"
-        className="button"
-        activeClassName="selected"
-        exact={true}
-      >
+      <NavLink to="/" className={navLinkClasses} end>
         <FontAwesomeIcon icon={faImages} />
       </NavLink>
-      <NavLink to="/albums" className="button" activeClassName="selected">
+      <NavLink to="/albums" className={navLinkClasses}>
         <FontAwesomeIcon icon={faFolder} />
       </NavLink>
       <form onSubmit={handleSubmit}>

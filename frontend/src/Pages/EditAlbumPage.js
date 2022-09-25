@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { THUMBNAILS_ROOT } from "../Constants";
 
@@ -34,7 +34,7 @@ const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
 };
 
 const EditAlbum = ({ album, onUpdateAlbum }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [photos, setPhotos] = useState(album.photos);
 
@@ -53,7 +53,7 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
   };
 
   const onCancel = () => {
-    history.push(`/albums/${encodeURIComponent(album.id)}`);
+    navigate(`/albums/${encodeURIComponent(album.id)}`);
   };
 
   const photoElements = photos.map((p, i) => (

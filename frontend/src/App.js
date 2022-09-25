@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { CellMeasurerCache } from "react-virtualized";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
 import { groupBy } from "./Utilities";
@@ -17,7 +17,7 @@ import "./App.css";
 
 // Bootstrap application
 const App = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const cache = useRef(
     new CellMeasurerCache({
@@ -40,19 +40,25 @@ const App = () => {
   const [rootFolder, setRootFolder] = useState(null);
   const [expandedFolderIds, setExpandedFolderIds] = useState([]);
 
-  useEffect(async () => {
-    const photos = await fetchPhotos();
-    setPhotos(photos);
+  useEffect(() => {
+    async function fetch() {
+      const photos = await fetchPhotos();
+      setPhotos(photos);
 
-    const photosBy = groupBy((p) => p.date, photos);
-    photosBy.forEach(({ items }) => items.reverse());
-    setPhotosBy(photosBy);
+      const photosBy = groupBy((p) => p.date, photos);
+      photosBy.forEach(({ items }) => items.reverse());
+      setPhotosBy(photosBy);
+    }
+    fetch();
   }, []);
 
-  useEffect(async () => {
-    const { rootFolder, albums } = await fetchAlbums();
-    setRootFolder(rootFolder);
-    setAlbums(albums);
+  useEffect(() => {
+    async function fetch() {
+      const { rootFolder, albums } = await fetchAlbums();
+      setRootFolder(rootFolder);
+      setAlbums(albums);
+    }
+    fetch();
   }, []);
 
   useEffect(() => {
@@ -149,7 +155,7 @@ const App = () => {
 
   const handleInputFocus = () => {
     setInputting(true);
-    history.push("/");
+    navigate("/");
   };
 
   const handleInputBlur = () => {
@@ -175,7 +181,7 @@ const App = () => {
           setAlbums(albums);
         });
 
-        history.push(`/albums/${encodeURIComponent(album.id)}`);
+        navigate(`/albums/${encodeURIComponent(album.id)}`);
       })
       .catch((err) => {
         console.error(err);
@@ -193,31 +199,41 @@ const App = () => {
         onInputBlur={handleInputBlur}
         onInputFocus={handleInputFocus}
       />
-      <Switch>
-        <Route path="/albums/:albumId/edit">
-          <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
-        </Route>
-        <Route path="/albums/:albumId">
-          <ViewAlbumPage columns={columns} albums={albums} />
-        </Route>
-        <Route path="/albums">
-          <BrowseAlbumsPage
-            rootFolder={rootFolder}
-            expandedFolderIds={expandedFolderIds}
-            toggleFolder={handleToggleFolder}
-          />
-        </Route>
-        <Route path="/">
-          <StreamPhotosByDayPage
-            cache={cache}
-            list={list}
-            galleryRef={galleryRef}
-            photosBy={photosBy}
-            photos={photos}
-            columns={columns}
-          />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route
+          path="/albums/:albumId/edit"
+          element={
+            <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
+          }
+        ></Route>
+        <Route
+          path="/albums/:albumId"
+          element={<ViewAlbumPage columns={columns} albums={albums} />}
+        ></Route>
+        <Route
+          path="/albums"
+          element={
+            <BrowseAlbumsPage
+              rootFolder={rootFolder}
+              expandedFolderIds={expandedFolderIds}
+              toggleFolder={handleToggleFolder}
+            />
+          }
+        ></Route>
+        <Route
+          path="/"
+          element={
+            <StreamPhotosByDayPage
+              cache={cache}
+              list={list}
+              galleryRef={galleryRef}
+              photosBy={photosBy}
+              photos={photos}
+              columns={columns}
+            />
+          }
+        ></Route>
+      </Routes>
     </>
   );
 };
