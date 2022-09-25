@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { DateTime } from "luxon";
 import { AutoSizer, CellMeasurer, List } from "react-virtualized";
 
 import Showcase from "../Components/Showcase";
 import { THUMBNAILS_ROOT } from "../Constants";
+import { PhotosContext } from "../Providers/PhotosProvider";
 
 class CellDisplayedCache {
   _state = {};
@@ -14,16 +15,10 @@ class CellDisplayedCache {
   }
 }
 
-const StreamPhotosByDayPage = ({
-  cache,
-  list,
-  galleryRef,
-  columns,
-  photosBy,
-  photos,
-}) => {
+const StreamPhotosByDayPage = ({ cache, list, galleryRef, columns }) => {
   const [scrolling, setScrolling] = useState(false);
   const [selected, setSelected] = useState(null);
+  const { photos, photosBy } = useContext(PhotosContext);
 
   // TODO: handle reset on plus/minus to clear cache
   // const cache = useRef(new CellMeasurerCache({

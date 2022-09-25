@@ -3,8 +3,8 @@ import { CellMeasurerCache } from "react-virtualized";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
-import { groupBy } from "./Utilities";
-import { fetchAlbums, fetchPhotos, updateAlbum } from "./API";
+import { fetchAlbums, updateAlbum } from "./API";
+import { PhotosProvider, PhotosContext } from "./Providers/PhotosProvider";
 
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
@@ -31,26 +31,12 @@ const App = () => {
 
   const resetCache = () => cache.current.clearAll();
 
-  const [photosBy, setPhotosBy] = useState([]);
-  const [photos, setPhotos] = useState([]);
   const [columns, setColumns] = useState(6);
   const [inputting, setInputting] = useState(false);
 
   const [albums, setAlbums] = useState(null);
   const [rootFolder, setRootFolder] = useState(null);
   const [expandedFolderIds, setExpandedFolderIds] = useState([]);
-
-  useEffect(() => {
-    async function fetch() {
-      const photos = await fetchPhotos();
-      setPhotos(photos);
-
-      const photosBy = groupBy((p) => p.date, photos);
-      photosBy.forEach(({ items }) => items.reverse());
-      setPhotosBy(photosBy);
-    }
-    fetch();
-  }, []);
 
   useEffect(() => {
     async function fetch() {
@@ -113,44 +99,39 @@ const App = () => {
   };
 
   const handleGoToDate = (value) => {
-    const keys = photosBy.map(({ key }) => key);
-
-    const focusOnList = () =>
-      galleryRef.current.children[0].children[0].focus();
-
-    if (value.length === 10) {
-      // try an exact date match
-      const row = keys.indexOf(value);
-
-      if (row >= 0) {
-        list.current.scrollToRow(row);
-        focusOnList();
-      } else {
-        console.error(`date ${value} not found`);
-      }
-    } else if (value.length === 7) {
-      // find the month
-      const monthKeys = keys.filter((k) => k.startsWith(value));
-      const monthKey = monthKeys[monthKeys.length - 1];
-
-      if (monthKey && keys.indexOf(monthKey)) {
-        list.current.scrollToRow(keys.indexOf(monthKey));
-        focusOnList();
-      } else {
-        console.error(`month ${value} not found`);
-      }
-    } else if (value.length === 4) {
-      // find the year
-      const yearKeys = keys.filter((k) => k.startsWith(value));
-      const yearKey = yearKeys[yearKeys.length - 1];
-
-      if (yearKey && keys.indexOf(yearKey)) {
-        list.current.scrollToRow(keys.indexOf(yearKey));
-        focusOnList();
-      } else {
-        console.error(`year ${value} not found`);
-      }
-    }
+    // const keys = photosBy.map(({ key }) => key);
+    // const focusOnList = () =>
+    //   galleryRef.current.children[0].children[0].focus();
+    // if (value.length === 10) {
+    //   // try an exact date match
+    //   const row = keys.indexOf(value);
+    //   if (row >= 0) {
+    //     list.current.scrollToRow(row);
+    //     focusOnList();
+    //   } else {
+    //     console.error(`date ${value} not found`);
+    //   }
+    // } else if (value.length === 7) {
+    //   // find the month
+    //   const monthKeys = keys.filter((k) => k.startsWith(value));
+    //   const monthKey = monthKeys[monthKeys.length - 1];
+    //   if (monthKey && keys.indexOf(monthKey)) {
+    //     list.current.scrollToRow(keys.indexOf(monthKey));
+    //     focusOnList();
+    //   } else {
+    //     console.error(`month ${value} not found`);
+    //   }
+    // } else if (value.length === 4) {
+    //   // find the year
+    //   const yearKeys = keys.filter((k) => k.startsWith(value));
+    //   const yearKey = yearKeys[yearKeys.length - 1];
+    //   if (yearKey && keys.indexOf(yearKey)) {
+    //     list.current.scrollToRow(keys.indexOf(yearKey));
+    //     focusOnList();
+    //   } else {
+    //     console.error(`year ${value} not found`);
+    //   }
+    // }
   };
 
   const handleInputFocus = () => {
@@ -189,7 +170,7 @@ const App = () => {
   };
 
   return (
-    <>
+    <PhotosProvider>
       <Toolbar
         inputRef={inputRef}
         list={list}
@@ -227,14 +208,12 @@ const App = () => {
               cache={cache}
               list={list}
               galleryRef={galleryRef}
-              photosBy={photosBy}
-              photos={photos}
               columns={columns}
             />
           }
         ></Route>
       </Routes>
-    </>
+    </PhotosProvider>
   );
 };
 
