@@ -58,3 +58,12 @@ export const fetchPhotos = () => {
     return paths.map(makePhoto);
   });
 };
+
+export const updateAlbum = async (id, photoPaths) => {
+  const body = {
+    photos: photoPaths,
+  };
+  return axios
+    .patch(`/api/albums/${encodeURIComponent(id)}`, body)
+    .then((response) => response.data);
+};

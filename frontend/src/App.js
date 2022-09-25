@@ -1,11 +1,10 @@
 import { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import { CellMeasurerCache } from "react-virtualized";
 import { Route, Switch, useHistory } from "react-router-dom";
 
 import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
 import { groupBy } from "./Utilities";
-import { fetchAlbums, fetchPhotos } from "./API";
+import { fetchAlbums, fetchPhotos, updateAlbum } from "./API";
 
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
@@ -166,11 +165,8 @@ const App = () => {
   };
 
   const handleAlbumEdit = (album, newPhotos) => {
-    const body = {
-      photos: newPhotos.map((p) => p.path),
-    };
-    axios
-      .patch(`/api/albums/${encodeURIComponent(album.id)}`, body)
+    const photoPaths = newPhotos.map((p) => p.path);
+    updateAlbum(album.id, photoPaths)
       .then((_) => {
         // Reload album by fetching ALL albums
         // TODO: use updated album in response to update just single album
