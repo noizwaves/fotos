@@ -156,7 +156,7 @@ const App = () => {
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
-  });
+  }, []);
 
   const handleKeydown = (event) => {
     // TODO: don't trigger when showcase is displayed...
