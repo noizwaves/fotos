@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import { THUMBNAILS_ROOT } from "../Constants";
@@ -36,7 +36,7 @@ const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
 const EditAlbum = ({ album, onUpdateAlbum }) => {
   const history = useHistory();
 
-  const [photos, setPhotos] = React.useState(album.photos);
+  const [photos, setPhotos] = useState(album.photos);
 
   const onMoveDown = (photo) => {
     const originalIndex = photos.findIndex((p) => p === photo);

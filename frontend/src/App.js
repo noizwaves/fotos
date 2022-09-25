@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { CellMeasurerCache } from "react-virtualized";
 import { Route, Switch, useHistory } from "react-router-dom";
@@ -28,28 +28,28 @@ const makePhoto = (path) => {
 const App = () => {
   const history = useHistory();
 
-  const cache = React.useRef(
+  const cache = useRef(
     new CellMeasurerCache({
       fixedWidth: true,
       defaultHeight: 300,
     })
   );
-  const list = React.useRef(null);
-  const inputRef = React.useRef(null);
-  const galleryRef = React.useRef(null);
+  const list = useRef(null);
+  const inputRef = useRef(null);
+  const galleryRef = useRef(null);
 
   const resetCache = () => cache.current.clearAll();
 
-  const [photosBy, setPhotosBy] = React.useState([]);
-  const [photos, setPhotos] = React.useState([]);
-  const [columns, setColumns] = React.useState(6);
-  const [inputting, setInputting] = React.useState(false);
+  const [photosBy, setPhotosBy] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  const [columns, setColumns] = useState(6);
+  const [inputting, setInputting] = useState(false);
 
-  const [albums, setAlbums] = React.useState(null);
-  const [rootFolder, setRootFolder] = React.useState(null);
-  const [expandedFolderIds, setExpandedFolderIds] = React.useState([]);
+  const [albums, setAlbums] = useState(null);
+  const [rootFolder, setRootFolder] = useState(null);
+  const [expandedFolderIds, setExpandedFolderIds] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     axios.get("/api/photos").then((response) => {
       const paths = response.data;
       const photos = paths.map(makePhoto);
@@ -102,7 +102,7 @@ const App = () => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     axios.get("/api/albums").then((response) => {
       const albums = response.data.map((album) => {
         return { ...album, photos: album.photos.map(makePhoto) };
@@ -143,7 +143,7 @@ const App = () => {
     });
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("resize", resetCache);
 
     return () => {
@@ -151,7 +151,7 @@ const App = () => {
     };
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
     return () => {
       window.removeEventListener("keydown", handleKeydown);

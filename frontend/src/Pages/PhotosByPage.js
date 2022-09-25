@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef, useState } from "react";
 import { DateTime } from "luxon";
 import { AutoSizer, CellMeasurer, List } from "react-virtualized";
 
@@ -22,21 +22,21 @@ const PhotosByPage = ({
   photosBy,
   photos,
 }) => {
-  const [scrolling, setScrolling] = React.useState(false);
-  const [selected, setSelected] = React.useState(null);
+  const [scrolling, setScrolling] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   // TODO: handle reset on plus/minus to clear cache
-  // const cache = React.useRef(new CellMeasurerCache({
+  // const cache = useRef(new CellMeasurerCache({
   //   fixedWidth: true,
   //   defaultHeight: 300,
   // }))
   // TODO: accept list so we can be scrolled to
-  // const list = React.useRef(null)
+  // const list = useRef(null)
   // TODO: accept galleryRef so we can be scrolled to
-  // const galleryRef = React.useRef(null)
+  // const galleryRef = useRef(null)
 
-  const displayed = React.useRef(new CellDisplayedCache());
-  const scrollingRef = React.useRef({ timeout: null });
+  const displayed = useRef(new CellDisplayedCache());
+  const scrollingRef = useRef({ timeout: null });
 
   const handleNext = () => {
     const current = photos.indexOf(selected);

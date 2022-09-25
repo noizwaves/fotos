@@ -1,9 +1,9 @@
-import React from "react";
+import { useEffect } from "react";
 
 import { PHOTOS_ROOT, SMALL_ROOT, MEDIUM_ROOT, LARGE_ROOT } from "../Constants";
 
 const Showcase = ({ selected, onUnselect, onNext, onPrevious }) => {
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeydown = (event) => {
       if (event.keyCode === 37) {
         onPrevious();

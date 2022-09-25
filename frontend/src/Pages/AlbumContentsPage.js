@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { DateTime } from "luxon";
 import { useParams } from "react-router-dom";
 
@@ -112,7 +112,7 @@ const CalendarContents = ({ photos, setSelected }) => {
 const AlbumContentsPage = ({ albums, columns }) => {
   let { albumId } = useParams();
 
-  const [selected, setSelected] = React.useState(null);
+  const [selected, setSelected] = useState(null);
 
   const getContentsComponent = (album) => {
     const galleryType = album.galleryType || "SquareThumbnails";
