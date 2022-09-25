@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFolder,
@@ -8,21 +8,50 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Toolbar = ({
-  inputRef,
-  onGoToDate,
-  onInputBlur,
-  onInputFocus,
-  onMinus,
-  onPlus,
-}) => {
-  const [value, setValue] = useState("");
+import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 
+const Toolbar = ({ inputRef, onGoToDate }) => {
+  const [value, setValue] = useState("");
+  const [inputting, setInputting] = useState(false);
+
+  const navigate = useNavigate();
+  const { plus, minus } = useContext(ZoomLevelContext);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  const onInputFocus = () => {
+    setInputting(true);
+    navigate("/");
+  };
+
+  const onInputBlur = () => {
+    setInputting(false);
+  };
+
+  const handleKeydown = (event) => {
+    // TODO: don't trigger when showcase is displayed...
+    if (!inputting) {
+      if (event.keyCode === 173) {
+        minus();
+      } else if (event.keyCode === 61) {
+        plus();
+      } else if (event.keyCode === 71) {
+        inputRef.current.focus();
+        event.preventDefault();
+      }
+    }
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
     onGoToDate(value);
     setValue("");
   };
+
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -32,10 +61,10 @@ const Toolbar = ({
 
   return (
     <div className="toolbar">
-      <button className="button" onClick={onPlus}>
+      <button className="button" onClick={() => plus()}>
         <FontAwesomeIcon icon={faPlus} />
       </button>
-      <button className="button" onClick={onMinus}>
+      <button className="button" onClick={() => minus()}>
         <FontAwesomeIcon icon={faMinus} />
       </button>
       <NavLink to="/" className={navLinkClasses} end>

@@ -1,10 +1,11 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { DateTime } from "luxon";
 import { AutoSizer, CellMeasurer, List } from "react-virtualized";
 
 import Showcase from "../Components/Showcase";
 import { THUMBNAILS_ROOT } from "../Constants";
 import { PhotosContext } from "../Providers/PhotosProvider";
+import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 
 class CellDisplayedCache {
   _state = {};
@@ -15,9 +16,11 @@ class CellDisplayedCache {
   }
 }
 
-const StreamPhotosByDayPage = ({ cache, list, galleryRef, columns }) => {
+const StreamPhotosByDayPage = ({ list, galleryRef }) => {
   const [scrolling, setScrolling] = useState(false);
   const [selected, setSelected] = useState(null);
+
+  const { cache, columns } = useContext(ZoomLevelContext);
   const { photos, photosBy } = useContext(PhotosContext);
 
   // TODO: handle reset on plus/minus to clear cache
@@ -32,6 +35,16 @@ const StreamPhotosByDayPage = ({ cache, list, galleryRef, columns }) => {
 
   const displayed = useRef(new CellDisplayedCache());
   const scrollingRef = useRef({ timeout: null });
+
+  useEffect(() => {
+    const resetCache = () => cache.current.clearAll();
+
+    window.addEventListener("resize", resetCache);
+
+    return () => {
+      window.removeEventListener("resize", resetCache);
+    };
+  });
 
   const handleNext = () => {
     const current = photos.indexOf(selected);

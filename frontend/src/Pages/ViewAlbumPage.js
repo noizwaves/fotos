@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { DateTime } from "luxon";
 import { useParams } from "react-router-dom";
 
 import { THUMBNAILS_ROOT, PHOTOS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
 import Showcase from "../Components/Showcase";
+import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 
 const SquareThumbnailContents = ({ photos, columns, setSelected }) => {
   return (
@@ -109,8 +110,9 @@ const CalendarContents = ({ photos, setSelected }) => {
   );
 };
 
-const ViewAlbumPage = ({ albums, columns }) => {
-  let { albumId } = useParams();
+const ViewAlbumPage = ({ albums }) => {
+  const { albumId } = useParams();
+  const { columns } = useContext(ZoomLevelContext);
 
   const [selected, setSelected] = useState(null);
 

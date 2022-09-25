@@ -1,10 +1,9 @@
 import { useRef, useState, useEffect } from "react";
-import { CellMeasurerCache } from "react-virtualized";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
-import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
 import { fetchAlbums, updateAlbum } from "./API";
-import { PhotosProvider, PhotosContext } from "./Providers/PhotosProvider";
+import { PhotosProvider } from "./Providers/PhotosProvider";
+import { ZoomLevelProvider } from "./Providers/ZoomLevelProvider";
 
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
@@ -19,20 +18,9 @@ import "./App.css";
 const App = () => {
   const navigate = useNavigate();
 
-  const cache = useRef(
-    new CellMeasurerCache({
-      fixedWidth: true,
-      defaultHeight: 300,
-    })
-  );
   const list = useRef(null);
   const inputRef = useRef(null);
   const galleryRef = useRef(null);
-
-  const resetCache = () => cache.current.clearAll();
-
-  const [columns, setColumns] = useState(6);
-  const [inputting, setInputting] = useState(false);
 
   const [albums, setAlbums] = useState(null);
   const [rootFolder, setRootFolder] = useState(null);
@@ -46,57 +34,6 @@ const App = () => {
     }
     fetch();
   }, []);
-
-  useEffect(() => {
-    window.addEventListener("resize", resetCache);
-
-    return () => {
-      window.removeEventListener("resize", resetCache);
-    };
-  });
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeydown);
-    return () => {
-      window.removeEventListener("keydown", handleKeydown);
-    };
-  });
-
-  const handleKeydown = (event) => {
-    // TODO: don't trigger when showcase is displayed...
-    if (!inputting) {
-      if (event.keyCode === 173) {
-        handleMinus();
-      } else if (event.keyCode === 61) {
-        handlePlus();
-      } else if (event.keyCode === 71) {
-        inputRef.current.focus();
-        event.preventDefault();
-      }
-    }
-  };
-
-  const handleMinus = () => {
-    // Already at minimum number of columns
-    if (columns >= MAX_COLUMNS) {
-      return;
-    }
-
-    // Clear the cache, so the next re-render generates new values
-    resetCache();
-    setColumns(columns + 1);
-  };
-
-  const handlePlus = () => {
-    // Already at minimum number of columns
-    if (columns <= MIN_COLUMNS) {
-      return;
-    }
-
-    // Clear the cache, so the next re-render generates new values
-    resetCache();
-    setColumns(columns - 1);
-  };
 
   const handleGoToDate = (value) => {
     // const keys = photosBy.map(({ key }) => key);
@@ -134,15 +71,6 @@ const App = () => {
     // }
   };
 
-  const handleInputFocus = () => {
-    setInputting(true);
-    navigate("/");
-  };
-
-  const handleInputBlur = () => {
-    setInputting(false);
-  };
-
   const handleToggleFolder = (id) => {
     if (expandedFolderIds.indexOf(id) >= 0) {
       setExpandedFolderIds(expandedFolderIds.filter((eid) => eid !== id));
@@ -171,48 +99,37 @@ const App = () => {
 
   return (
     <PhotosProvider>
-      <Toolbar
-        inputRef={inputRef}
-        list={list}
-        onPlus={handlePlus}
-        onMinus={handleMinus}
-        onGoToDate={handleGoToDate}
-        onInputBlur={handleInputBlur}
-        onInputFocus={handleInputFocus}
-      />
-      <Routes>
-        <Route
-          path="/albums/:albumId/edit"
-          element={
-            <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
-          }
-        ></Route>
-        <Route
-          path="/albums/:albumId"
-          element={<ViewAlbumPage columns={columns} albums={albums} />}
-        ></Route>
-        <Route
-          path="/albums"
-          element={
-            <BrowseAlbumsPage
-              rootFolder={rootFolder}
-              expandedFolderIds={expandedFolderIds}
-              toggleFolder={handleToggleFolder}
-            />
-          }
-        ></Route>
-        <Route
-          path="/"
-          element={
-            <StreamPhotosByDayPage
-              cache={cache}
-              list={list}
-              galleryRef={galleryRef}
-              columns={columns}
-            />
-          }
-        ></Route>
-      </Routes>
+      <ZoomLevelProvider>
+        <Toolbar inputRef={inputRef} list={list} onGoToDate={handleGoToDate} />
+        <Routes>
+          <Route
+            path="/albums/:albumId/edit"
+            element={
+              <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
+            }
+          ></Route>
+          <Route
+            path="/albums/:albumId"
+            element={<ViewAlbumPage albums={albums} />}
+          ></Route>
+          <Route
+            path="/albums"
+            element={
+              <BrowseAlbumsPage
+                rootFolder={rootFolder}
+                expandedFolderIds={expandedFolderIds}
+                toggleFolder={handleToggleFolder}
+              />
+            }
+          ></Route>
+          <Route
+            path="/"
+            element={
+              <StreamPhotosByDayPage list={list} galleryRef={galleryRef} />
+            }
+          ></Route>
+        </Routes>
+      </ZoomLevelProvider>
     </PhotosProvider>
   );
 };
