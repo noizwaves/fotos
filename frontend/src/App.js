@@ -103,44 +103,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    axios.get("/api/albums").then((response) => {
-      const albums = response.data.map((album) => {
-        return { ...album, photos: album.photos.map(makePhoto) };
-      });
-
-      const rootFolder = { name: "Root Folder", id: "/", contents: [] };
-
-      albums.forEach((album) => {
-        // create folders for this album
-        const folderNames = album.id.split("/");
-
-        let current = rootFolder;
-
-        for (let i = 0; i < folderNames.length - 1; i++) {
-          const folderName = folderNames[i];
-          const existing = current.contents.find(
-            (item) => item.contents && item.name === folderName
-          );
-          if (existing) {
-            current = existing;
-          } else {
-            const newFolder = {
-              id: `${current.id}${folderName}/`,
-              name: folderName,
-              contents: [],
-            };
-            current.contents.push(newFolder);
-            current = newFolder;
-          }
-        }
-
-        // put album in folder
-        current.contents.push(album);
-      });
-
-      setRootFolder(rootFolder);
-      setAlbums(albums);
-    });
+    fetchAlbums();
   }, []);
 
   useEffect(() => {
