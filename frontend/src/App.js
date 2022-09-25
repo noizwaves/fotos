@@ -5,6 +5,8 @@ import { Route, Switch, useHistory } from "react-router-dom";
 
 import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
 import { groupBy } from "./Utilities";
+import { fetchAlbums, fetchPhotos } from "./API";
+
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
 import BrowseAlbumsPage from "./Pages/BrowseAlbumsPage";
@@ -13,16 +15,6 @@ import EditAlbumPage from "./Pages/EditAlbumPage";
 
 import "./reset.css";
 import "./App.css";
-
-// Gallery viewing components
-
-const makePhoto = (path) => {
-  return {
-    path: path,
-    name: path.split("/")[3],
-    date: path.split("/").splice(0, 3).join("-"),
-  };
-};
 
 // Bootstrap application
 const App = () => {
@@ -49,61 +41,19 @@ const App = () => {
   const [rootFolder, setRootFolder] = useState(null);
   const [expandedFolderIds, setExpandedFolderIds] = useState([]);
 
-  useEffect(() => {
-    axios.get("/api/photos").then((response) => {
-      const paths = response.data;
-      const photos = paths.map(makePhoto);
-      setPhotos(photos);
+  useEffect(async () => {
+    const photos = await fetchPhotos();
+    setPhotos(photos);
 
-      const photosBy = groupBy((p) => p.date, photos);
-      photosBy.forEach(({ items }) => items.reverse());
-      setPhotosBy(photosBy);
-    });
+    const photosBy = groupBy((p) => p.date, photos);
+    photosBy.forEach(({ items }) => items.reverse());
+    setPhotosBy(photosBy);
   }, []);
 
-  const fetchAlbums = () => {
-    axios.get("/api/albums").then((response) => {
-      const albums = response.data.map((album) => {
-        return { ...album, photos: album.photos.map(makePhoto) };
-      });
-
-      const rootFolder = { name: "Root Folder", id: "/", contents: [] };
-
-      albums.forEach((album) => {
-        // create folders for this album
-        const folderNames = album.id.split("/");
-
-        let current = rootFolder;
-
-        for (let i = 0; i < folderNames.length - 1; i++) {
-          const folderName = folderNames[i];
-          const existing = current.contents.find(
-            (item) => item.contents && item.name === folderName
-          );
-          if (existing) {
-            current = existing;
-          } else {
-            const newFolder = {
-              id: `${current.id}${folderName}/`,
-              name: folderName,
-              contents: [],
-            };
-            current.contents.push(newFolder);
-            current = newFolder;
-          }
-        }
-
-        // put album in folder
-        current.contents.push(album);
-      });
-
-      setRootFolder(rootFolder);
-      setAlbums(albums);
-    });
-  };
-
-  useEffect(() => {
-    fetchAlbums();
+  useEffect(async () => {
+    const { rootFolder, albums } = await fetchAlbums();
+    setRootFolder(rootFolder);
+    setAlbums(albums);
   }, []);
 
   useEffect(() => {
@@ -112,14 +62,14 @@ const App = () => {
     return () => {
       window.removeEventListener("resize", resetCache);
     };
-  }, []);
+  });
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
-  }, []);
+  });
 
   const handleKeydown = (event) => {
     // TODO: don't trigger when showcase is displayed...
@@ -224,7 +174,10 @@ const App = () => {
       .then((_) => {
         // Reload album by fetching ALL albums
         // TODO: use updated album in response to update just single album
-        fetchAlbums();
+        fetchAlbums().then(({ rootFolder, albums }) => {
+          setRootFolder(rootFolder);
+          setAlbums(albums);
+        });
 
         history.push(`/albums/${encodeURIComponent(album.id)}`);
       })
