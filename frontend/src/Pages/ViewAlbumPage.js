@@ -109,7 +109,7 @@ const CalendarContents = ({ photos, setSelected }) => {
   );
 };
 
-const AlbumContentsPage = ({ albums, columns }) => {
+const ViewAlbumPage = ({ albums, columns }) => {
   let { albumId } = useParams();
 
   const [selected, setSelected] = useState(null);
@@ -195,4 +195,4 @@ const AlbumContentsPage = ({ albums, columns }) => {
   }
 };
 
-export default AlbumContentsPage;
+export default ViewAlbumPage;

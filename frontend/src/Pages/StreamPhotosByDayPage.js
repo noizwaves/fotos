@@ -14,7 +14,7 @@ class CellDisplayedCache {
   }
 }
 
-const PhotosByPage = ({
+const StreamPhotosByDayPage = ({
   cache,
   list,
   galleryRef,
@@ -158,4 +158,4 @@ const PhotosByPage = ({
   );
 };
 
-export default PhotosByPage;
+export default StreamPhotosByDayPage;

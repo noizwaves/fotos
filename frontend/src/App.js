@@ -6,9 +6,9 @@ import { Route, Switch, useHistory } from "react-router-dom";
 import { MIN_COLUMNS, MAX_COLUMNS } from "./Constants";
 import { groupBy } from "./Utilities";
 import Toolbar from "./Components/Toolbar";
-import PhotosByPage from "./Pages/PhotosByPage";
-import AlbumBrowserPage from "./Pages/AlbumBrowserPage";
-import AlbumContentsPage from "./Pages/AlbumContentsPage";
+import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
+import BrowseAlbumsPage from "./Pages/BrowseAlbumsPage";
+import ViewAlbumPage from "./Pages/ViewAlbumPage";
 import EditAlbumPage from "./Pages/EditAlbumPage";
 
 import "./reset.css";
@@ -286,17 +286,17 @@ const App = () => {
           <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
         </Route>
         <Route path="/albums/:albumId">
-          <AlbumContentsPage columns={columns} albums={albums} />
+          <ViewAlbumPage columns={columns} albums={albums} />
         </Route>
         <Route path="/albums">
-          <AlbumBrowserPage
+          <BrowseAlbumsPage
             rootFolder={rootFolder}
             expandedFolderIds={expandedFolderIds}
             toggleFolder={handleToggleFolder}
           />
         </Route>
         <Route path="/">
-          <PhotosByPage
+          <StreamPhotosByDayPage
             cache={cache}
             list={list}
             galleryRef={galleryRef}

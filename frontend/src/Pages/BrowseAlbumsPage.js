@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
-const AlbumBrowserPage = ({ rootFolder, expandedFolderIds, toggleFolder }) => {
+const BrowseAlbumsPage = ({ rootFolder, expandedFolderIds, toggleFolder }) => {
   const urlSafe = (id) => {
     return encodeURIComponent(id);
   };
@@ -61,4 +61,4 @@ const AlbumBrowserPage = ({ rootFolder, expandedFolderIds, toggleFolder }) => {
   );
 };
 
-export default AlbumBrowserPage;
+export default BrowseAlbumsPage;
