@@ -1,9 +1,9 @@
-import { useRef, useState, useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 
-import { fetchAlbums, updateAlbum } from "./API";
 import { PhotosProvider } from "./Providers/PhotosProvider";
 import { ZoomLevelProvider } from "./Providers/ZoomLevelProvider";
+import { AlbumsProvider } from "./Providers/AlbumsProvider";
 
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
@@ -16,24 +16,11 @@ import "./App.css";
 
 // Bootstrap application
 const App = () => {
-  const navigate = useNavigate();
-
   const list = useRef(null);
   const inputRef = useRef(null);
   const galleryRef = useRef(null);
 
-  const [albums, setAlbums] = useState(null);
-  const [rootFolder, setRootFolder] = useState(null);
   const [expandedFolderIds, setExpandedFolderIds] = useState([]);
-
-  useEffect(() => {
-    async function fetch() {
-      const { rootFolder, albums } = await fetchAlbums();
-      setRootFolder(rootFolder);
-      setAlbums(albums);
-    }
-    fetch();
-  }, []);
 
   const handleGoToDate = (value) => {
     // const keys = photosBy.map(({ key }) => key);
@@ -79,58 +66,39 @@ const App = () => {
     }
   };
 
-  const handleAlbumEdit = (album, newPhotos) => {
-    const photoPaths = newPhotos.map((p) => p.path);
-    updateAlbum(album.id, photoPaths)
-      .then((_) => {
-        // Reload album by fetching ALL albums
-        // TODO: use updated album in response to update just single album
-        fetchAlbums().then(({ rootFolder, albums }) => {
-          setRootFolder(rootFolder);
-          setAlbums(albums);
-        });
-
-        navigate(`/albums/${encodeURIComponent(album.id)}`);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  const withProviders = (children) => {
+    return (
+      <PhotosProvider>
+        <AlbumsProvider>
+          <ZoomLevelProvider>{children}</ZoomLevelProvider>
+        </AlbumsProvider>
+      </PhotosProvider>
+    );
   };
 
-  return (
-    <PhotosProvider>
-      <ZoomLevelProvider>
-        <Toolbar inputRef={inputRef} list={list} onGoToDate={handleGoToDate} />
-        <Routes>
-          <Route
-            path="/albums/:albumId/edit"
-            element={
-              <EditAlbumPage albums={albums} onUpdateAlbum={handleAlbumEdit} />
-            }
-          ></Route>
-          <Route
-            path="/albums/:albumId"
-            element={<ViewAlbumPage albums={albums} />}
-          ></Route>
-          <Route
-            path="/albums"
-            element={
-              <BrowseAlbumsPage
-                rootFolder={rootFolder}
-                expandedFolderIds={expandedFolderIds}
-                toggleFolder={handleToggleFolder}
-              />
-            }
-          ></Route>
-          <Route
-            path="/"
-            element={
-              <StreamPhotosByDayPage list={list} galleryRef={galleryRef} />
-            }
-          ></Route>
-        </Routes>
-      </ZoomLevelProvider>
-    </PhotosProvider>
+  return withProviders(
+    <>
+      <Toolbar inputRef={inputRef} list={list} onGoToDate={handleGoToDate} />
+      <Routes>
+        <Route path="/albums/:albumId/edit" element={<EditAlbumPage />}></Route>
+        <Route path="/albums/:albumId" element={<ViewAlbumPage />}></Route>
+        <Route
+          path="/albums"
+          element={
+            <BrowseAlbumsPage
+              expandedFolderIds={expandedFolderIds}
+              toggleFolder={handleToggleFolder}
+            />
+          }
+        ></Route>
+        <Route
+          path="/"
+          element={
+            <StreamPhotosByDayPage list={list} galleryRef={galleryRef} />
+          }
+        ></Route>
+      </Routes>
+    </>
   );
 };
 

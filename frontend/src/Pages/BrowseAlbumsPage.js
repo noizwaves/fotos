@@ -1,8 +1,13 @@
+import { useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
-const BrowseAlbumsPage = ({ rootFolder, expandedFolderIds, toggleFolder }) => {
+import { AlbumsContext } from "../Providers/AlbumsProvider";
+
+const BrowseAlbumsPage = ({ expandedFolderIds, toggleFolder }) => {
+  const { rootFolder } = useContext(AlbumsContext);
+
   const urlSafe = (id) => {
     return encodeURIComponent(id);
   };

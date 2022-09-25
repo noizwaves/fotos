@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { updateAlbum } from "../API";
 import { THUMBNAILS_ROOT } from "../Constants";
+import { AlbumsContext } from "../Providers/AlbumsProvider";
 
 const movePhoto = (photos, newIndex, photo) => {
   const newPhotos = photos.map((e) => e);
@@ -35,7 +37,6 @@ const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
 
 const EditAlbum = ({ album, onUpdateAlbum }) => {
   const navigate = useNavigate();
-
   const [photos, setPhotos] = useState(album.photos);
 
   const onMoveDown = (photo) => {
@@ -72,15 +73,34 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
       <h2>{album.name}</h2>
       <div className="editAlbum--photos">{photoElements}</div>
       <div className="editAlbum--actions">
-        <button onClick={() => onUpdateAlbum(album, photos)}>Update</button>
+        <button onClick={() => onUpdateAlbum(photos)}>Update</button>
         <button onClick={() => onCancel()}>Cancel</button>
       </div>
     </div>
   );
 };
 
-const EditAlbumPage = ({ albums, onUpdateAlbum }) => {
+const EditAlbumPage = () => {
+  const navigate = useNavigate();
+  const { albums, reloadAlbums } = useContext(AlbumsContext);
+
   const albumId = decodeURIComponent(useParams().albumId);
+
+  const onUpdateAlbum = (newPhotos) => {
+    const photoPaths = newPhotos.map((p) => p.path);
+    // TODO: Call context directly to update album
+    updateAlbum(album.id, photoPaths)
+      .then((_) => {
+        // Reload album by fetching ALL albums
+        // TODO: use updated album in response to update just single album
+        reloadAlbums();
+
+        navigate(`/albums/${encodeURIComponent(album.id)}`);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   if (albums === null) {
     return <div>Loading...</div>;

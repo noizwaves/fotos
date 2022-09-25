@@ -6,6 +6,7 @@ import { THUMBNAILS_ROOT, PHOTOS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
 import Showcase from "../Components/Showcase";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
+import { AlbumsContext } from "../Providers/AlbumsProvider";
 
 const SquareThumbnailContents = ({ photos, columns, setSelected }) => {
   return (
@@ -110,9 +111,10 @@ const CalendarContents = ({ photos, setSelected }) => {
   );
 };
 
-const ViewAlbumPage = ({ albums }) => {
+const ViewAlbumPage = () => {
   const { albumId } = useParams();
   const { columns } = useContext(ZoomLevelContext);
+  const { albums } = useContext(AlbumsContext);
 
   const [selected, setSelected] = useState(null);
 
