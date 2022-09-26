@@ -18,7 +18,7 @@ const movePhoto = (photos, newIndex, photo) => {
 const EditAlbumPhoto = ({ photo, isFirst, isLast, onMoveUp, onMoveDown }) => {
   const thumbnailSrc = `${THUMBNAILS_ROOT}/${photo.path}`;
   return (
-    <div className="editAlbumPhoto">
+    <div className="edit-album-photo">
       <div className="thumbnail">
         <img src={thumbnailSrc} alt={photo.name} />
       </div>
@@ -69,10 +69,10 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
   ));
 
   return (
-    <div className="editAlbum">
+    <div className="edit-album">
       <h2>{album.name}</h2>
-      <div className="editAlbum--photos">{photoElements}</div>
-      <div className="editAlbum--actions">
+      <div>{photoElements}</div>
+      <div className="actions">
         <button onClick={() => onUpdateAlbum(photos)}>Update</button>
         <button onClick={() => onCancel()}>Cancel</button>
       </div>
@@ -112,7 +112,7 @@ const EditAlbumPage = () => {
   }
 
   return (
-    <div className="editAlbumPage">
+    <div className="edit-album-page">
       <EditAlbum album={album} onUpdateAlbum={onUpdateAlbum} />
     </div>
   );

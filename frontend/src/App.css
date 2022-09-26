@@ -439,42 +439,42 @@ h2 {
 }
 
 /* Album editing */
-.editAlbumPage {
+.edit-album-page {
     display: flex;
     justify-content: center;
 }
 
-.editAlbum h2 {
+.edit-album h2 {
     margin-top: unset;
     border-top: unset;
 }
 
-.editAlbum--actions {
+.edit-album .actions {
     text-align: center;
 }
 
-.editAlbumPhoto {
+.edit-album-photo {
     display: flex;
     align-items: center;
 }
 
-.editAlbumPhoto .thumbnail {
+.edit-album-photo .thumbnail {
     width: 100px;
     height: 100px;
 }
 
-.editAlbumPhoto .thumbnail img {
+.edit-album-photo .thumbnail img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.editAlbumPhoto .path {
+.edit-album-photo .path {
     padding: 10px;
     min-width: 450px;
 }
 
-.editAlbumPhoto .actions {
+.edit-album-photo .actions {
     display: flex;
     flex-direction: column;
 }
