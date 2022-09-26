@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export const groupBy = (keyFunc, items) => {
   const hash = items.reduce((arr, item) => {
     const key = keyFunc(item);
@@ -112,4 +114,27 @@ export const floorToWeek = (date) => {
   const day = date.weekday % 7; // convert to 0=sunday .. 6=saturday
   const dayAdjust = day >= fd ? -day + fd : -day + fd - 7;
   return date.plus({ days: dayAdjust });
+};
+
+const loadDefault = (defaultValue, key) => {
+  // Check for existing value in sessionStorage
+  if (sessionStorage.getItem(key)) {
+    return JSON.parse(sessionStorage.getItem(key));
+  }
+  return defaultValue;
+};
+/**
+ *
+ * @param {any} defaultValue The default value for this state
+ * @param {string} key The key to store value in sessionStorage as
+ */
+export const useSessionState = (defaultValue, key) => {
+  const [rawValue, setRawValue] = useState(loadDefault(defaultValue, key));
+
+  const setValue = (newValue) => {
+    setRawValue(newValue);
+    sessionStorage.setItem(key, JSON.stringify(newValue));
+  };
+
+  return [rawValue, setValue];
 };

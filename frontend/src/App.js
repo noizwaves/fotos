@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { PhotosProvider } from "./Providers/PhotosProvider";
@@ -19,8 +19,6 @@ const App = () => {
   const list = useRef(null);
   const inputRef = useRef(null);
   const galleryRef = useRef(null);
-
-  const [expandedFolderIds, setExpandedFolderIds] = useState([]);
 
   const handleGoToDate = (value) => {
     // const keys = photosBy.map(({ key }) => key);
@@ -58,14 +56,6 @@ const App = () => {
     // }
   };
 
-  const handleToggleFolder = (id) => {
-    if (expandedFolderIds.indexOf(id) >= 0) {
-      setExpandedFolderIds(expandedFolderIds.filter((eid) => eid !== id));
-    } else {
-      setExpandedFolderIds(expandedFolderIds.concat([id]));
-    }
-  };
-
   const withProviders = (children) => {
     return (
       <PhotosProvider>
@@ -80,23 +70,15 @@ const App = () => {
     <>
       <Toolbar inputRef={inputRef} list={list} onGoToDate={handleGoToDate} />
       <Routes>
-        <Route path="/albums/:albumId/edit" element={<EditAlbumPage />}></Route>
-        <Route path="/albums/:albumId" element={<ViewAlbumPage />}></Route>
-        <Route
-          path="/albums"
-          element={
-            <BrowseAlbumsPage
-              expandedFolderIds={expandedFolderIds}
-              toggleFolder={handleToggleFolder}
-            />
-          }
-        ></Route>
+        <Route path="/albums/:albumId/edit" element={<EditAlbumPage />} />
+        <Route path="/albums/:albumId" element={<ViewAlbumPage />} />
+        <Route path="/albums" element={<BrowseAlbumsPage />} />
         <Route
           path="/"
           element={
             <StreamPhotosByDayPage list={list} galleryRef={galleryRef} />
           }
-        ></Route>
+        />
       </Routes>
     </>
   );

@@ -4,12 +4,26 @@ import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 import { AlbumsContext } from "../Providers/AlbumsProvider";
+import { useSessionState } from "../Utilities";
 
-const BrowseAlbumsPage = ({ expandedFolderIds, toggleFolder }) => {
+const BrowseAlbumsPage = () => {
   const { rootFolder } = useContext(AlbumsContext);
+
+  const [expandedFolderIds, setExpandedFolderIds] = useSessionState(
+    [],
+    "expandedFolderIds"
+  );
 
   const urlSafe = (id) => {
     return encodeURIComponent(id);
+  };
+
+  const toggleFolder = (id) => {
+    if (expandedFolderIds.indexOf(id) >= 0) {
+      setExpandedFolderIds(expandedFolderIds.filter((eid) => eid !== id));
+    } else {
+      setExpandedFolderIds(expandedFolderIds.concat([id]));
+    }
   };
 
   const albumOrFolder = (item) => {
