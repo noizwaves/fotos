@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { DateTime } from "luxon";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { THUMBNAILS_ROOT, PHOTOS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
@@ -141,7 +141,9 @@ const ViewAlbumPage = () => {
         <h2>
           <span> {album.name}</span>
           <span className="actions">
-            <a href={`/albums/${encodeURIComponent(album.id)}/edit`}>Edit</a>
+            <Link to={`/albums/${encodeURIComponent(album.id)}/edit`}>
+              Edit
+            </Link>
           </span>
         </h2>
         <Contents
