@@ -9,13 +9,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
+import { PhotosContext } from "../Providers/PhotosProvider";
 
-const Toolbar = ({ inputRef, onGoToDate }) => {
+const Toolbar = ({ list, inputRef, galleryRef }) => {
   const [value, setValue] = useState("");
   const [inputting, setInputting] = useState(false);
 
   const navigate = useNavigate();
   const { plus, minus } = useContext(ZoomLevelContext);
+  const { photosBy } = useContext(PhotosContext);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
@@ -23,6 +25,42 @@ const Toolbar = ({ inputRef, onGoToDate }) => {
       window.removeEventListener("keydown", handleKeydown);
     };
   });
+
+  const onGoToDate = (value) => {
+    const keys = photosBy.map(({ key }) => key);
+    const focusOnList = () =>
+      galleryRef.current.children[0].children[0].focus();
+    if (value.length === 10) {
+      // try an exact date match
+      const row = keys.indexOf(value);
+      if (row >= 0) {
+        list.current.scrollToRow(row);
+        focusOnList();
+      } else {
+        console.error(`date ${value} not found`);
+      }
+    } else if (value.length === 7) {
+      // find the month
+      const monthKeys = keys.filter((k) => k.startsWith(value));
+      const monthKey = monthKeys[monthKeys.length - 1];
+      if (monthKey && keys.indexOf(monthKey)) {
+        list.current.scrollToRow(keys.indexOf(monthKey));
+        focusOnList();
+      } else {
+        console.error(`month ${value} not found`);
+      }
+    } else if (value.length === 4) {
+      // find the year
+      const yearKeys = keys.filter((k) => k.startsWith(value));
+      const yearKey = yearKeys[yearKeys.length - 1];
+      if (yearKey && keys.indexOf(yearKey)) {
+        list.current.scrollToRow(keys.indexOf(yearKey));
+        focusOnList();
+      } else {
+        console.error(`year ${value} not found`);
+      }
+    }
+  };
 
   const onInputFocus = () => {
     setInputting(true);
@@ -34,7 +72,7 @@ const Toolbar = ({ inputRef, onGoToDate }) => {
   };
 
   const handleKeydown = (event) => {
-    // TODO: don't trigger when showcase is displayed...
+    // don't trigger when showcase is displayed...
     if (!inputting) {
       if (event.keyCode === 173) {
         minus();
@@ -46,6 +84,7 @@ const Toolbar = ({ inputRef, onGoToDate }) => {
       }
     }
   };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     onGoToDate(value);
