@@ -51,6 +51,13 @@
     }
 }
 
+.view-album {
+    width: 100%;
+    height: calc(100vh - 3rem - 1px);
+    overflow: scroll;
+    scrollbar-width: none;
+}
+
 .day-gallery:first-of-type h2 {
     border-top: none;
     margin-top: auto;

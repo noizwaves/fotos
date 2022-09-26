@@ -8,7 +8,8 @@ import Showcase from "../Components/Showcase";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 import { AlbumsContext } from "../Providers/AlbumsProvider";
 
-const SquareThumbnailContents = ({ photos, columns, setSelected }) => {
+const SquareThumbnailContents = ({ photos, setSelected }) => {
+  const { columns } = useContext(ZoomLevelContext);
   return (
     <div className={`gallery gallery-${columns}`}>
       {photos.map((photo, k) => {
@@ -111,12 +112,24 @@ const CalendarContents = ({ photos, setSelected }) => {
   );
 };
 
-const ViewAlbumPage = () => {
-  const { albumId } = useParams();
-  const { columns } = useContext(ZoomLevelContext);
-  const { albums } = useContext(AlbumsContext);
-
+const ViewAlbum = ({ album }) => {
   const [selected, setSelected] = useState(null);
+
+  const handleNext = () => {
+    const current = album.photos.indexOf(selected);
+
+    if (current + 1 < album.photos.length) {
+      setSelected(album.photos[current + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    const current = album.photos.indexOf(selected);
+
+    if (current > 0) {
+      setSelected(album.photos[current - 1]);
+    }
+  };
 
   const getContentsComponent = (album) => {
     const galleryType = album.galleryType || "SquareThumbnails";
@@ -134,9 +147,19 @@ const ViewAlbumPage = () => {
     }
   };
 
-  const renderPhotos = (album) => {
+  const renderContents = (album) => {
     const Contents = getContentsComponent(album);
     return (
+      <Contents
+        photos={album.photos}
+        setSelected={setSelected}
+        galleryOptions={album.galleryOptions}
+      />
+    );
+  };
+
+  return (
+    <div tabIndex={4} className="view-album">
       <div className="day-gallery">
         <h2>
           <span> {album.name}</span>
@@ -146,59 +169,32 @@ const ViewAlbumPage = () => {
             </Link>
           </span>
         </h2>
-        <Contents
-          photos={album.photos}
-          columns={columns}
-          setSelected={setSelected}
-          galleryOptions={album.galleryOptions}
-        />
+        {renderContents(album)}
       </div>
-    );
-  };
+      <Showcase
+        selected={selected}
+        onUnselect={() => setSelected(null)}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    </div>
+  );
+};
 
-  const selectedAlbum = (albums || []).filter(
-    (a) => a.id === decodeURIComponent(albumId)
-  )[0];
+const ViewAlbumPage = () => {
+  const { albumId } = useParams();
+  const { albums } = useContext(AlbumsContext);
 
-  const handleNext = () => {
-    const current = selectedAlbum.photos.indexOf(selected);
-
-    if (current + 1 < selectedAlbum.photos.length) {
-      setSelected(selectedAlbum.photos[current + 1]);
-    }
-  };
-
-  const handlePrevious = () => {
-    const current = selectedAlbum.photos.indexOf(selected);
-
-    if (current > 0) {
-      setSelected(selectedAlbum.photos[current - 1]);
-    }
-  };
-
-  if (selectedAlbum) {
-    return (
-      <div
-        tabIndex={4}
-        style={{
-          width: "100%",
-          height: "calc(100vh - 3rem - 1px)",
-          overflow: "scroll",
-          scrollbarWidth: "none",
-        }}
-      >
-        {renderPhotos(selectedAlbum)}
-        <Showcase
-          selected={selected}
-          onUnselect={() => setSelected(null)}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-        />
-      </div>
-    );
-  } else {
-    return <></>;
+  if (albums === null) {
+    return <div>Loading...</div>;
   }
+
+  const album = albums.find((a) => a.id === albumId);
+  if (!album) {
+    return <div>Album not found</div>;
+  }
+
+  return <ViewAlbum album={album} />;
 };
 
 export default ViewAlbumPage;
