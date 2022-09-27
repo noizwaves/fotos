@@ -3,7 +3,8 @@ import { useState } from "react";
 export const groupBy = (keyFunc, items) => {
   const hash = items.reduce((arr, item) => {
     const key = keyFunc(item);
-    return arr[key] ? arr[key].push(item) : (arr[key] = [item]), arr;
+    arr[key] ? arr[key].push(item) : (arr[key] = [item]);
+    return arr;
   }, {});
 
   return Object.keys(hash).map((key) => ({ key: key, items: hash[key] }));

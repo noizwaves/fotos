@@ -26,13 +26,13 @@ const DraggablePhoto = ({ photo }) => {
       {...listeners}
       {...attributes}
     >
-      <img src={photosSrc} />
+      <img src={photosSrc} alt={photo.path} />
     </div>
   );
 };
 
 const DroppableFrame = ({ children, index }) => {
-  const { setNodeRef, over, isOver } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: `droppable-${index}`,
     data: {
       index,

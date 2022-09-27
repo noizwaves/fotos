@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from "react";
 
-import { groupBy } from "../Utilities";
 import { fetchAlbums } from "../API";
 
 export const AlbumsContext = createContext();
