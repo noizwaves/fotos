@@ -15,12 +15,14 @@ const SquareThumbnailContents = ({ photos, setSelected }) => {
       {photos.map((photo, k) => {
         const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`;
         return (
-          <div key={k} className="photo">
-            <img
-              src={photosSrc}
-              alt={photo.name}
-              onClick={() => setSelected(photo)}
-            />
+          <div className="frame">
+            <div key={k} className="photo">
+              <img
+                src={photosSrc}
+                alt={photo.name}
+                onClick={() => setSelected(photo)}
+              />
+            </div>
           </div>
         );
       })}

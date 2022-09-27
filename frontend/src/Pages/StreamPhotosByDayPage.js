@@ -91,12 +91,14 @@ const StreamPhotosByDayPage = ({ list, galleryRef }) => {
         ? `${THUMBNAILS_ROOT}/${photo.path}`
         : "/placeholder.png";
       return (
-        <div key={`${index}-${k}`} className="photo">
-          <img
-            src={photosSrc}
-            alt={photo.name}
-            onClick={() => setSelected(photo)}
-          />
+        <div className="frame" key={`${index}-${k}`}>
+          <div className="photo">
+            <img
+              src={photosSrc}
+              alt={photo.name}
+              onClick={() => setSelected(photo)}
+            />
+          </div>
         </div>
       );
     });
