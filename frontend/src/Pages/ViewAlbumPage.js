@@ -102,9 +102,11 @@ const CalendarContents = ({ photos, setSelected }) => {
 
     const formattedDate = date.toFormat(formatStr);
     return (
-      <div className="photo" key={formattedDate}>
-        <span className="date">{formattedDate}</span>
-        {photoElem}
+      <div className="frame" key={formattedDate}>
+        <div className="photo">
+          <span className="date">{formattedDate}</span>
+          {photoElem}
+        </div>
       </div>
     );
   };

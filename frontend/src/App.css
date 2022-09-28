@@ -384,7 +384,7 @@ h2 {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.calendar.gallery > .photo {
+.calendar.gallery .frame {
     border: 1px solid #ccc;
     height: calc((100vw - 1rem) / 7 - 2px);
     width: calc((100vw - 1rem) / 7 - 2px);
