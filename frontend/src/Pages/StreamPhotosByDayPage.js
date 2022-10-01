@@ -6,6 +6,7 @@ import Showcase from "../Components/Showcase";
 import { THUMBNAILS_ROOT } from "../Constants";
 import { PhotosContext } from "../Providers/PhotosProvider";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
+import { CheckedContext } from "../Providers/CheckedProvider";
 
 class CellDisplayedCache {
   _state = {};
@@ -22,16 +23,7 @@ const StreamPhotosByDayPage = ({ list, galleryRef }) => {
 
   const { cache, columns } = useContext(ZoomLevelContext);
   const { photos, photosBy } = useContext(PhotosContext);
-
-  // TODO: handle reset on plus/minus to clear cache
-  // const cache = useRef(new CellMeasurerCache({
-  //   fixedWidth: true,
-  //   defaultHeight: 300,
-  // }))
-  // TODO: accept list so we can be scrolled to
-  // const list = useRef(null)
-  // TODO: accept galleryRef so we can be scrolled to
-  // const galleryRef = useRef(null)
+  const { isChecked, toggleChecked } = useContext(CheckedContext);
 
   const displayed = useRef(new CellDisplayedCache());
   const scrollingRef = useRef({ timeout: null });
@@ -90,8 +82,10 @@ const StreamPhotosByDayPage = ({ list, galleryRef }) => {
       const photosSrc = renderPhoto
         ? `${THUMBNAILS_ROOT}/${photo.path}`
         : "/placeholder.png";
+      const classNames = "frame" + (isChecked(photo) ? " checked" : "");
       return (
-        <div className="frame" key={`${index}-${k}`}>
+        <div className={classNames} key={`${index}-${k}`}>
+          <div className="checker" onClick={() => toggleChecked(photo)} />
           <div className="photo">
             <img
               src={photosSrc}

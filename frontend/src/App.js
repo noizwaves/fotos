@@ -13,6 +13,8 @@ import EditAlbumPage from "./Pages/EditAlbumPage";
 
 import "./reset.css";
 import "./App.css";
+import { CheckedProvider } from "./Providers/CheckedProvider";
+import AddToAlbumPage from "./Pages/AddToAlbumPage";
 
 // Bootstrap application
 const App = () => {
@@ -24,7 +26,9 @@ const App = () => {
     return (
       <PhotosProvider>
         <AlbumsProvider>
-          <ZoomLevelProvider>{children}</ZoomLevelProvider>
+          <ZoomLevelProvider>
+            <CheckedProvider>{children}</CheckedProvider>
+          </ZoomLevelProvider>
         </AlbumsProvider>
       </PhotosProvider>
     );
@@ -34,6 +38,7 @@ const App = () => {
     <>
       <Toolbar inputRef={inputRef} list={list} galleryRef={galleryRef} />
       <Routes>
+        <Route path="/add-to-album" element={<AddToAlbumPage />} />
         <Route path="/albums/:albumId/edit" element={<EditAlbumPage />} />
         <Route path="/albums/:albumId" element={<ViewAlbumPage />} />
         <Route path="/albums" element={<BrowseAlbumsPage />} />

@@ -1,8 +1,10 @@
 import { useState, useContext, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFolder,
+  faFolderTree,
+  faFolderPlus,
+  faBan,
   faImages,
   faMinus,
   faPlus,
@@ -10,6 +12,7 @@ import {
 
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 import { PhotosContext } from "../Providers/PhotosProvider";
+import { CheckedContext } from "../Providers/CheckedProvider";
 
 const Toolbar = ({ list, inputRef, galleryRef }) => {
   const [value, setValue] = useState("");
@@ -18,6 +21,7 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
   const navigate = useNavigate();
   const { plus, minus } = useContext(ZoomLevelContext);
   const { photosBy } = useContext(PhotosContext);
+  const { anyChecked, resetChecked } = useContext(CheckedContext);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
@@ -98,6 +102,13 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
   const navLinkClasses = ({ isActive }) =>
     isActive ? "button selected" : "button";
 
+  const onAddToAlbum = () => {
+    if (anyChecked()) {
+      navigate("/add-to-album");
+    }
+  };
+  const addToAlbumClasses = anyChecked() ? "button" : "button disabled";
+
   return (
     <div className="toolbar">
       <button className="button" onClick={() => plus()}>
@@ -110,19 +121,29 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
         <FontAwesomeIcon icon={faImages} />
       </NavLink>
       <NavLink to="/albums" className={navLinkClasses}>
-        <FontAwesomeIcon icon={faFolder} />
+        <FontAwesomeIcon icon={faFolderTree} />
       </NavLink>
-      <form onSubmit={handleSubmit}>
-        <input
-          ref={inputRef}
-          type="text"
-          onFocus={onInputFocus}
-          onBlur={onInputBlur}
-          value={value}
-          placeholder="YYYY, YYYY-MM, or YYYY-MM-DD"
-          onChange={handleChange}
-        />
-      </form>
+      <div className="group">
+        <form onSubmit={handleSubmit}>
+          <input
+            ref={inputRef}
+            type="text"
+            onFocus={onInputFocus}
+            onBlur={onInputBlur}
+            value={value}
+            placeholder="YYYY, YYYY-MM, or YYYY-MM-DD"
+            onChange={handleChange}
+          />
+        </form>
+      </div>
+      <div className="group">
+        <span className={addToAlbumClasses} onClick={() => onAddToAlbum()}>
+          <FontAwesomeIcon icon={faFolderPlus} />
+        </span>
+        <span className={addToAlbumClasses} onClick={() => resetChecked()}>
+          <FontAwesomeIcon icon={faBan} />
+        </span>
+      </div>
     </div>
   );
 };
