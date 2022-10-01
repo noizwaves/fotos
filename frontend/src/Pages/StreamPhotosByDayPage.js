@@ -2,6 +2,9 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { DateTime } from "luxon";
 import { AutoSizer, CellMeasurer, List } from "react-virtualized";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+
 import Showcase from "../Components/Showcase";
 import { THUMBNAILS_ROOT } from "../Constants";
 import { PhotosContext } from "../Providers/PhotosProvider";
@@ -85,7 +88,11 @@ const StreamPhotosByDayPage = ({ list, galleryRef }) => {
       const classNames = "frame" + (isChecked(photo) ? " checked" : "");
       return (
         <div className={classNames} key={`${index}-${k}`}>
-          <div className="checker" onClick={() => toggleChecked(photo)} />
+          <div className="hover-actions" onClick={() => toggleChecked(photo)}>
+            <span className="check-action">
+              <FontAwesomeIcon icon={faCircleCheck} />
+            </span>
+          </div>
           <div className="photo">
             <img
               src={photosSrc}

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useDraggable, useDroppable, DndContext } from "@dnd-kit/core";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -53,8 +53,10 @@ const DroppableFrame = ({ children, index }) => {
 
 const SquareThumbnailEditor = ({ photos, onMove, onRemove }) => {
   const { columns } = useContext(ZoomLevelContext);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleDragEnd = (event) => {
+    setIsDragging(false);
     // Drag didn't end on a droppable
     if (event.collisions.length === 0) {
       return;
@@ -67,9 +69,17 @@ const SquareThumbnailEditor = ({ photos, onMove, onRemove }) => {
     onMove(photo, newIndex);
   };
 
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div className={`gallery gallery-${columns} editing`}>
+    <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+      <div
+        className={`gallery gallery-${columns} editing ${
+          isDragging && "dragging"
+        }`}
+      >
         {photos.map((photo, k) => (
           <DroppableFrame key={k} index={k}>
             <div className="hover-actions">
