@@ -1,6 +1,9 @@
 import { useContext } from "react";
 import { useDraggable, useDroppable, DndContext } from "@dnd-kit/core";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+
 import { THUMBNAILS_ROOT } from "../Constants";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 
@@ -48,7 +51,7 @@ const DroppableFrame = ({ children, index }) => {
   );
 };
 
-const SquareThumbnailEditor = ({ photos, onMove }) => {
+const SquareThumbnailEditor = ({ photos, onMove, onRemove }) => {
   const { columns } = useContext(ZoomLevelContext);
 
   const handleDragEnd = (event) => {
@@ -69,6 +72,14 @@ const SquareThumbnailEditor = ({ photos, onMove }) => {
       <div className={`gallery gallery-${columns} editing`}>
         {photos.map((photo, k) => (
           <DroppableFrame key={k} index={k}>
+            <div className="hover-actions">
+              <span
+                className="remove-from-album"
+                onClick={() => onRemove(photo)}
+              >
+                <FontAwesomeIcon icon={faCircleXmark} />
+              </span>
+            </div>
             <DraggablePhoto key={k} photo={photo} />
           </DroppableFrame>
         ))}

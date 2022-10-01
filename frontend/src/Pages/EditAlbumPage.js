@@ -24,6 +24,11 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
     setPhotos(newPhotos);
   };
 
+  const onRemove = (photo) => {
+    const newPhotos = photos.filter((p) => p !== photo);
+    setPhotos(newPhotos);
+  };
+
   const onCancel = () => {
     navigate(`/albums/${encodeURIComponent(album.id)}`);
   };
@@ -31,7 +36,11 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
   return (
     <div className="edit-album">
       <h2>{album.name}</h2>
-      <SquareThumbnailEditor photos={photos} onMove={onMove} />
+      <SquareThumbnailEditor
+        photos={photos}
+        onMove={onMove}
+        onRemove={onRemove}
+      />
       <div className="actions">
         <button onClick={() => onUpdateAlbum(photos)}>Update</button>
         <button onClick={() => onCancel()}>Cancel</button>

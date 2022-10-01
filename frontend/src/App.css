@@ -418,6 +418,7 @@ h2 {
 }
 
 /* Checking photos */
+
 .frame:hover .checker:after {
     content: "🔘";
 }
@@ -430,20 +431,39 @@ h2 {
     content: "❌";
 }
 
-.frame .checker {
+.frame .checker,
+.frame .hover-actions {
     display: none;
     position: absolute;
     cursor: pointer;
+}
+
+.frame .checker {
     top: 10px;
     right: 10px;
 }
 
-.frame:hover .checker {
+.frame .hover-actions {
+    top: -2px;
+    right: -2px;
+}
+
+.frame:hover .checker,
+.frame:hover .hover-actions {
     display: block;
 }
 
 .frame.checked .photo {
     border: 2px solid blue;
+}
+
+.frame .hover-actions span {
+    color: #666;
+    font-size: 1.5rem;
+}
+
+.frame .hover-actions .remove-from-album:hover {
+    color: #333;
 }
 
 /* Album Browser */
