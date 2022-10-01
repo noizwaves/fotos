@@ -67,3 +67,11 @@ export const updateAlbum = async (id, photoPaths) => {
     .patch(`/api/albums/${encodeURIComponent(id)}`, body)
     .then((response) => response.data);
 };
+
+export const createAlbum = async (path, name) => {
+  const body = {
+    path,
+    name,
+  };
+  return axios.post(`/api/albums`, body).then((response) => response.data);
+};

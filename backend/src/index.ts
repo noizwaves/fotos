@@ -3,6 +3,7 @@ import { join } from "path";
 const express = require("express");
 const { resolve, relative } = require("path");
 const { readdir, mkdir, writeFile } = require("fs").promises;
+const { existsSync } = require("fs");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -314,6 +315,7 @@ class PhotoLibrary {
       })
       .on("add", (path) => {
         console.log(`Detected new album: ${path}`);
+        removeAlbum(path);
         addAlbum(path);
       })
       .on("unlink", async (path) => {
@@ -344,6 +346,17 @@ class PhotoLibrary {
 
     return newAlbum;
   }
+
+  async createAlbum(path: string, name: string) {
+    const newAlbum = new Album(path, name, [], null, null);
+
+    // update state immediately as file detection isn't instantaneous
+    this._albums.push(newAlbum);
+
+    await newAlbum.writeToDisk(albumsRootPath);
+
+    return newAlbum;
+  }
 }
 
 const loadApplicationState = async (
@@ -359,14 +372,19 @@ const loadApplicationState = async (
   await library.init();
   library.startWatch();
 
-  return Promise.resolve({ library, photosRootPath, thumbnailsRootPath });
+  return Promise.resolve({
+    library,
+    albumsRootPath,
+    photosRootPath,
+    thumbnailsRootPath,
+  });
 };
 
 //
 // Application
 //
 const buildApplication = (
-  { photosRootPath, thumbnailsRootPath, library },
+  { albumsRootPath, photosRootPath, thumbnailsRootPath, library },
   app
 ) => {
   app.use("/photos", express.static(photosRootPath));
@@ -421,6 +439,41 @@ const buildApplication = (
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify(albumsJson));
+  });
+
+  const validateNewAlbum = (path, name) => {
+    // path is not taken
+    const absolutePath = join(albumsRootPath, path);
+    if (existsSync(absolutePath)) {
+      return false;
+    }
+
+    // name is not empty
+    if (name === "") {
+      return false;
+    }
+
+    return true;
+  };
+
+  app.post("/api/albums", async (req, res) => {
+    const path = req.body.path.trim();
+    const name = req.body.name.trim();
+
+    // Validate inputs
+    if (!validateNewAlbum(path, name)) {
+      res.setHeader("Content-Type", "application/json");
+      res.status(401);
+      res.send(JSON.stringify({ errors: ["validation error"] }));
+      return;
+    }
+
+    // update library
+    const album = await library.createAlbum(path, name);
+
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.send(JSON.stringify(album));
   });
 
   app.patch("/api/albums/:id", async (req, res) => {

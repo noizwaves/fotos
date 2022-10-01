@@ -72,10 +72,18 @@ const BrowseAlbumsPage = () => {
   };
 
   return (
-    <div className="album-browser">
-      {rootFolder !== null
-        ? rootFolder.contents.map(albumOrFolder, expandedFolderIds)
-        : null}
+    <div>
+      <h2>
+        <span>Albums</span>
+        <span className="actions">
+          <Link to={`/albums/new`}>Create</Link>
+        </span>
+      </h2>
+      <div className="album-browser">
+        {rootFolder !== null
+          ? rootFolder.contents.map(albumOrFolder, expandedFolderIds)
+          : null}
+      </div>
     </div>
   );
 };
