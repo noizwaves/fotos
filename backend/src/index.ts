@@ -1,9 +1,7 @@
-import { join } from "path";
-
 const express = require("express");
 const { resolve, relative } = require("path");
 const { readdir, mkdir, writeFile } = require("fs").promises;
-const { existsSync } = require("fs");
+const { existsSync, mkdirSync } = require("fs");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -113,7 +111,12 @@ class Album {
   }
 
   writeToDisk(albumsRootPath) {
-    return writeFile(join(albumsRootPath, this.id), this.toJSON());
+    const albumPath = path.join(albumsRootPath, this.id);
+    const dirPath = path.dirname(albumPath);
+    if (!existsSync(dirPath)) {
+      mkdirSync(dirPath);
+    }
+    return writeFile(albumPath, this.toJSON());
   }
 }
 
@@ -440,7 +443,7 @@ const buildApplication = (
 
   const validateNewAlbum = (path, name) => {
     // path is not taken
-    const absolutePath = join(albumsRootPath, path);
+    const absolutePath = path.join(albumsRootPath, path);
     if (existsSync(absolutePath)) {
       return false;
     }
