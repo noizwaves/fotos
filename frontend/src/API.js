@@ -11,9 +11,7 @@ const makePhoto = (path) => {
 // TODO: separate out album processing
 export const fetchAlbums = () => {
   return axios.get("/api/albums").then((response) => {
-    const albums = response.data.map((album) => {
-      return { ...album, photos: album.photos.map(makePhoto) };
-    });
+    const albums = response.data;
 
     const rootFolder = { name: "Root Folder", id: "/", contents: [] };
 
@@ -49,6 +47,17 @@ export const fetchAlbums = () => {
       rootFolder,
       albums,
     };
+  });
+};
+
+export const fetchAlbum = (id) => {
+  return axios.get(`/api/albums/${encodeURIComponent(id)}`).then((response) => {
+    const album = {
+      ...response.data,
+      photos: response.data.photos.map(makePhoto),
+    };
+
+    return album;
   });
 };
 

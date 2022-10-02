@@ -1,8 +1,7 @@
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { updateAlbum } from "../API";
-import { AlbumsContext } from "../Providers/AlbumsProvider";
+import { fetchAlbum, updateAlbum } from "../API";
 import SquareThumbnailEditor from "../Components/SquareThumbnailEditor";
 
 const movePhoto = (photos, newIndex, photo) => {
@@ -51,19 +50,19 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
 
 const EditAlbumPage = () => {
   const navigate = useNavigate();
-  const { albums, reloadAlbums } = useContext(AlbumsContext);
+  const [album, setAlbum] = useState(null);
+  const { albumId } = useParams();
 
-  const albumId = decodeURIComponent(useParams().albumId);
+  useEffect(() => {
+    fetchAlbum(albumId).then((album) => {
+      setAlbum(album);
+    });
+  }, [albumId]);
 
   const onUpdateAlbum = (newPhotos) => {
     const photoPaths = newPhotos.map((p) => p.path);
-    // TODO: Call context directly to update album
     updateAlbum(album.id, photoPaths)
       .then((_) => {
-        // Reload album by fetching ALL albums
-        // TODO: use updated album in response to update just single album
-        reloadAlbums();
-
         navigate(`/albums/${encodeURIComponent(album.id)}`);
       })
       .catch((err) => {
@@ -71,13 +70,8 @@ const EditAlbumPage = () => {
       });
   };
 
-  if (albums === null) {
-    return <div>Loading...</div>;
-  }
-
-  const album = albums.find((a) => a.id === albumId);
   if (album === null) {
-    return <div>Album not found</div>;
+    return <div>Loading...</div>;
   }
 
   return (

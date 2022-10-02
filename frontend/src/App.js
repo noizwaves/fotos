@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import { PhotosProvider } from "./Providers/PhotosProvider";
 import { ZoomLevelProvider } from "./Providers/ZoomLevelProvider";
-import { AlbumsProvider } from "./Providers/AlbumsProvider";
+import { CheckedProvider } from "./Providers/CheckedProvider";
 
 import Toolbar from "./Components/Toolbar";
 import StreamPhotosByDayPage from "./Pages/StreamPhotosByDayPage";
@@ -11,11 +11,10 @@ import BrowseAlbumsPage from "./Pages/BrowseAlbumsPage";
 import ViewAlbumPage from "./Pages/ViewAlbumPage";
 import EditAlbumPage from "./Pages/EditAlbumPage";
 import CreateAlbumPage from "./Pages/CreateAlbumPage";
+import AddToAlbumPage from "./Pages/AddToAlbumPage";
 
 import "./reset.css";
 import "./App.css";
-import { CheckedProvider } from "./Providers/CheckedProvider";
-import AddToAlbumPage from "./Pages/AddToAlbumPage";
 
 // Bootstrap application
 const App = () => {
@@ -26,11 +25,9 @@ const App = () => {
   const withProviders = (children) => {
     return (
       <PhotosProvider>
-        <AlbumsProvider>
-          <ZoomLevelProvider>
-            <CheckedProvider>{children}</CheckedProvider>
-          </ZoomLevelProvider>
-        </AlbumsProvider>
+        <ZoomLevelProvider>
+          <CheckedProvider>{children}</CheckedProvider>
+        </ZoomLevelProvider>
       </PhotosProvider>
     );
   };

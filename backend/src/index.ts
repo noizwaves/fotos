@@ -431,9 +431,6 @@ const buildApplication = (
       return {
         id: a.id,
         name: a.name,
-        photos: a.relativePhotoPaths,
-        galleryType: a.galleryType,
-        galleryOptions: a.galleryOptions,
       };
     });
 
@@ -474,6 +471,28 @@ const buildApplication = (
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.send(JSON.stringify(album));
+  });
+
+  app.get("/api/albums/:id", async (req, res) => {
+    const id = req.params.id;
+    const album = library.albums.find((a) => a.id === id);
+
+    if (!album) {
+      res.status(404);
+      res.send("Not found");
+      return;
+    }
+
+    const body = {
+      id: album.id,
+      name: album.name,
+      photos: album.relativePhotoPaths,
+      galleryType: album.galleryType,
+      galleryOptions: album.galleryOptions,
+    };
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.send(JSON.stringify(body));
   });
 
   app.patch("/api/albums/:id", async (req, res) => {

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { DateTime } from "luxon";
 import { Link, useParams } from "react-router-dom";
 
@@ -6,7 +6,7 @@ import { THUMBNAILS_ROOT, PHOTOS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
 import Showcase from "../Components/Showcase";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
-import { AlbumsContext } from "../Providers/AlbumsProvider";
+import { fetchAlbum } from "../API";
 
 const SquareThumbnailContents = ({ photos, setSelected }) => {
   const { columns } = useContext(ZoomLevelContext);
@@ -187,16 +187,21 @@ const ViewAlbum = ({ album }) => {
 
 const ViewAlbumPage = () => {
   const { albumId } = useParams();
-  const { albums } = useContext(AlbumsContext);
+  const [album, setAlbum] = useState(null);
 
-  if (albums === null) {
+  useEffect(() => {
+    fetchAlbum(albumId).then((album) => {
+      setAlbum(album);
+    });
+  }, [albumId]);
+
+  if (album === null) {
     return <div>Loading...</div>;
   }
 
-  const album = albums.find((a) => a.id === albumId);
-  if (!album) {
-    return <div>Album not found</div>;
-  }
+  // if (!album) {
+  //   return <div>Album not found</div>;
+  // }
 
   return <ViewAlbum album={album} />;
 };

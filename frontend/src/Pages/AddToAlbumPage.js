@@ -1,11 +1,10 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AlbumsContext } from "../Providers/AlbumsProvider";
 import { CheckedContext } from "../Providers/CheckedProvider";
-import { updateAlbum } from "../API";
+import { fetchAlbum, fetchAlbums, updateAlbum } from "../API";
 
-const AddToAlbum = ({ albums, reloadAlbums, checked, resetChecked }) => {
+const AddToAlbum = ({ albums, checked, resetChecked }) => {
   const navigate = useNavigate();
   const [selectedAlbumId, setSelectedAlbumId] = useState(albums[0].id);
 
@@ -18,10 +17,11 @@ const AddToAlbum = ({ albums, reloadAlbums, checked, resetChecked }) => {
   const numPhotos = `${checked.length}`;
   const wordPhotos = "Photo" + (checked.length === 1 ? "" : "s");
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
 
-    const album = albums.filter((a) => a.id === selectedAlbumId)[0];
+    const album = await fetchAlbum(selectedAlbumId);
+
     const newPhotos = [].concat(
       album.photos.map((p) => p.path),
       checked.map((p) => p.path)
@@ -30,9 +30,6 @@ const AddToAlbum = ({ albums, reloadAlbums, checked, resetChecked }) => {
     updateAlbum(album.id, newPhotos)
       .then((_) => {
         resetChecked();
-        // Reload album by fetching ALL albums
-        // TODO: use updated album in response to update just single album
-        reloadAlbums();
 
         navigate(`/albums/${encodeURIComponent(album.id)}`);
       })
@@ -64,8 +61,14 @@ const AddToAlbum = ({ albums, reloadAlbums, checked, resetChecked }) => {
 };
 
 const AddToAlbumPage = () => {
-  const { albums, reloadAlbums } = useContext(AlbumsContext);
+  const [albums, setAlbums] = useState(null);
   const { checked, resetChecked } = useContext(CheckedContext);
+
+  useEffect(() => {
+    fetchAlbums().then(({ albums }) => {
+      setAlbums(albums);
+    });
+  }, []);
 
   if (albums === null) {
     return <div>Loading...</div>;
@@ -76,12 +79,7 @@ const AddToAlbumPage = () => {
   }
 
   return (
-    <AddToAlbum
-      albums={albums}
-      reloadAlbums={reloadAlbums}
-      checked={checked}
-      resetChecked={resetChecked}
-    />
+    <AddToAlbum albums={albums} checked={checked} resetChecked={resetChecked} />
   );
 };
 

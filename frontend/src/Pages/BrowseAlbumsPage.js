@@ -1,14 +1,12 @@
-import { useContext } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
-import { AlbumsContext } from "../Providers/AlbumsProvider";
 import { useSessionState } from "../Utilities";
+import { fetchAlbums } from "../API";
 
-const BrowseAlbumsPage = () => {
-  const { rootFolder } = useContext(AlbumsContext);
-
+const BrowseAlbums = ({ rootFolder }) => {
   const [expandedFolderIds, setExpandedFolderIds] = useSessionState(
     [],
     "expandedFolderIds"
@@ -86,6 +84,22 @@ const BrowseAlbumsPage = () => {
       </div>
     </div>
   );
+};
+
+const BrowseAlbumsPage = () => {
+  const [rootFolder, setRootFolder] = useState(null);
+
+  useEffect(() => {
+    fetchAlbums().then(({ rootFolder }) => {
+      setRootFolder(rootFolder);
+    });
+  }, []);
+
+  if (rootFolder === null) {
+    return <div>Loading...</div>;
+  }
+
+  return <BrowseAlbums rootFolder={rootFolder} />;
 };
 
 export default BrowseAlbumsPage;

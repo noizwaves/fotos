@@ -1,8 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { createAlbum } from "../API";
-import { AlbumsContext } from "../Providers/AlbumsProvider";
 
 const validatePath = (path) => {
   if (!path.endsWith(".json")) {
@@ -26,7 +25,6 @@ const validate = ({ path, name }) => {
 
 const CreateAlbumPage = () => {
   const navigate = useNavigate();
-  const { reloadAlbums } = useContext(AlbumsContext);
   const [path, setPath] = useState("");
   const [name, setName] = useState("");
 
@@ -35,9 +33,6 @@ const CreateAlbumPage = () => {
 
     createAlbum(path.trim(), name.trim())
       .then((_) => {
-        // Reload album by fetching ALL albums
-        // TODO: use updated album in response to update just single album
-        reloadAlbums();
         // ideally use id from response
         navigate(`/albums/${encodeURIComponent(path.trim())}`);
       })
