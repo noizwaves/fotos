@@ -441,9 +441,9 @@ const buildApplication = (
     res.send(JSON.stringify(albumsJson));
   });
 
-  const validateNewAlbum = (path, name) => {
+  const validateNewAlbum = (albumPath, name) => {
     // path is not taken
-    const absolutePath = path.join(albumsRootPath, path);
+    const absolutePath = path.join(albumsRootPath, albumPath);
     if (existsSync(absolutePath)) {
       return false;
     }
