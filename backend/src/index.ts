@@ -1,7 +1,7 @@
 const express = require("express");
 const { resolve, relative } = require("path");
 const { readdir, mkdir, writeFile } = require("fs").promises;
-const { existsSync, mkdirSync } = require("fs");
+const { existsSync, mkdirSync, rmSync } = require("fs");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -108,6 +108,13 @@ class Album {
     }
 
     return JSON.stringify(dto, null, 2);
+  }
+
+  deleteFromDisk(albumsRootPath) {
+    const albumPath = path.join(albumsRootPath, this.id);
+    if (existsSync(albumPath)) {
+      rmSync(albumPath);
+    }
   }
 
   writeToDisk(albumsRootPath) {
@@ -350,6 +357,16 @@ class PhotoLibrary {
     return newAlbum;
   }
 
+  deleteAlbum(id: any) {
+    const index = this._albums.findIndex((a) => a.id === id);
+    if (index > -1) {
+      const album: Album = this._albums[index];
+      this._albums.splice(index, 1);
+
+      album.deleteFromDisk(albumsRootPath);
+    }
+  }
+
   async createAlbum(path: string, name: string) {
     const newAlbum = new Album(path, name, [], null, null);
 
@@ -507,6 +524,14 @@ const buildApplication = (
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.send(JSON.stringify(album));
+  });
+
+  app.delete("/api/albums/:id", async (req, res) => {
+    library.deleteAlbum(req.params.id);
+
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.send(true);
   });
 
   app.use("/", express.static(path.join(__dirname, "../../frontend/build/")));

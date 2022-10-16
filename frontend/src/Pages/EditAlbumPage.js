@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { fetchAlbum, updateAlbum } from "../API";
+import { fetchAlbum, deleteAlbum, updateAlbum } from "../API";
 import SquareThumbnailEditor from "../Components/SquareThumbnailEditor";
 
 const movePhoto = (photos, newIndex, photo) => {
@@ -14,7 +14,7 @@ const movePhoto = (photos, newIndex, photo) => {
   return newPhotos;
 };
 
-const EditAlbum = ({ album, onUpdateAlbum }) => {
+const EditAlbum = ({ album, onUpdateAlbum, onDeleteAlbum }) => {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState(album.photos);
 
@@ -32,6 +32,16 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
     navigate(`/albums/${encodeURIComponent(album.id)}`);
   };
 
+  const onDelete = () => {
+    const proceed = window.confirm(
+      "Are you sure you want to delete this album?"
+    );
+
+    if (proceed) {
+      onDeleteAlbum();
+    }
+  };
+
   return (
     <div className="edit-album">
       <h2>{album.name}</h2>
@@ -41,6 +51,9 @@ const EditAlbum = ({ album, onUpdateAlbum }) => {
         onRemove={onRemove}
       />
       <div className="actions">
+        <button className="button danger" onClick={() => onDelete()}>
+          Delete
+        </button>
         <button onClick={() => onUpdateAlbum(photos)}>Update</button>
         <button onClick={() => onCancel()}>Cancel</button>
       </div>
@@ -70,13 +83,27 @@ const EditAlbumPage = () => {
       });
   };
 
+  const onDeleteAlbum = () => {
+    deleteAlbum(album.id)
+      .then((_) => {
+        navigate("/albums");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
   if (album === null) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="edit-album-page">
-      <EditAlbum album={album} onUpdateAlbum={onUpdateAlbum} />
+      <EditAlbum
+        album={album}
+        onDeleteAlbum={onDeleteAlbum}
+        onUpdateAlbum={onUpdateAlbum}
+      />
     </div>
   );
 };

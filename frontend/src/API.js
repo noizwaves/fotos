@@ -68,6 +68,12 @@ export const fetchPhotos = () => {
   });
 };
 
+export const deleteAlbum = async (id) => {
+  return axios
+    .delete(`/api/albums/${encodeURIComponent(id)}`)
+    .then((response) => response.data);
+};
+
 export const updateAlbum = async (id, photoPaths) => {
   const body = {
     photos: photoPaths,

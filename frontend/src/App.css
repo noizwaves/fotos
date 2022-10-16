@@ -519,6 +519,13 @@ h2 .actions {
     color: black;
 }
 
+/* Buttons */
+.button.danger {
+    border-color: red;
+    border-radius: 5px;
+    background-color: #ff8a8a;
+}
+
 /* Album editing */
 .edit-album-page {
     display: flex;
