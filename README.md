@@ -6,7 +6,7 @@ A lightweight photo viewer inspired by iCloud Photos.
 
 ## Dependencies
 
-1.  NodeJS 10
+1.  NodeJS 16
 1.  Yarn
 1.  Docker (optional)
 
