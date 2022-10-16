@@ -17,14 +17,9 @@ Easily install the correct versions using [asdf](https://asdf-vm.com) by running
 ### Bare metal
 
 1.  Install dependencies
-1.  Start the backend in one terminal
-    1.  `$ cd backend`
-    1.  `$ source .envrc.template`
-    1.  `$ yarn dev`
-1.  Start the frontend in another terminal
-    1.  `$ cd fronend`
-    1.  `$ yarn start`
-    1.  Open [fotos](http://localhost:3000) in a web browser
+1.  `$ cp backend/.envrc.template backend/.envrc`
+1.  `$ overmind start`
+1.  Open [fotos](http://localhost:3000) in a web browser
 
 ### With Docker
 
