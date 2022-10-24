@@ -75,12 +75,11 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
       return;
     }
 
-    console.log(event.code, event.keyCode);
-    if (event.keyCode === 173) {
+    if (event.code === "Minus") {
       minus();
-    } else if (event.keyCode === 61) {
+    } else if (event.code === "Equal") {
       plus();
-    } else if (event.keyCode === 71) {
+    } else if (event.code === "KeyG") {
       inputRef.current.focus();
       event.preventDefault();
     }
