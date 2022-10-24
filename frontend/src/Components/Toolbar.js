@@ -16,7 +16,6 @@ import { CheckedContext } from "../Providers/CheckedProvider";
 
 const Toolbar = ({ list, inputRef, galleryRef }) => {
   const [value, setValue] = useState("");
-  const [inputting, setInputting] = useState(false);
 
   const navigate = useNavigate();
   const { plus, minus } = useContext(ZoomLevelContext);
@@ -67,25 +66,23 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
   };
 
   const onInputFocus = () => {
-    setInputting(true);
     navigate("/");
   };
 
-  const onInputBlur = () => {
-    setInputting(false);
-  };
-
   const handleKeydown = (event) => {
-    // don't trigger when showcase is displayed...
-    if (!inputting) {
-      if (event.keyCode === 173) {
-        minus();
-      } else if (event.keyCode === 61) {
-        plus();
-      } else if (event.keyCode === 71) {
-        inputRef.current.focus();
-        event.preventDefault();
-      }
+    // ignore keydowns to an <input>
+    if (event.target instanceof HTMLInputElement) {
+      return;
+    }
+
+    console.log(event.code, event.keyCode);
+    if (event.keyCode === 173) {
+      minus();
+    } else if (event.keyCode === 61) {
+      plus();
+    } else if (event.keyCode === 71) {
+      inputRef.current.focus();
+      event.preventDefault();
     }
   };
 
@@ -129,7 +126,6 @@ const Toolbar = ({ list, inputRef, galleryRef }) => {
             ref={inputRef}
             type="text"
             onFocus={onInputFocus}
-            onBlur={onInputBlur}
             value={value}
             placeholder="YYYY, YYYY-MM, or YYYY-MM-DD"
             onChange={handleChange}
