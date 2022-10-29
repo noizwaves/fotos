@@ -150,7 +150,7 @@ const generateThumbnailFile = async (
 
   try {
     await sharp(imagePath)
-      .resize(400, 400, { fit: "outside", withoutEnlargement: true })
+      .resize(256, 256, { fit: "outside", withoutEnlargement: true })
       .withMetadata()
       .toFile(finalPath);
   } catch (err) {
@@ -162,6 +162,38 @@ const generateThumbnailFile = async (
   return Promise.resolve();
 };
 
+// Normals
+const getNormalAbsolutePath = (normalsRootPath, photo) => {
+  return path.join(normalsRootPath, photo.relativePath);
+};
+
+const generateNormalFile = async (photosRootPath, normalsRootPath, photo) => {
+  const finalPath = getNormalAbsolutePath(normalsRootPath, photo);
+  if (fs.existsSync(finalPath)) {
+    return Promise.resolve();
+  }
+
+  await mkdir(path.dirname(finalPath), { recursive: true });
+
+  const imagePath = path.join(photosRootPath, photo.relativePath);
+
+  try {
+    await sharp(imagePath)
+      .resize(768, 768, { fit: "outside", withoutEnlargement: true })
+      .withMetadata()
+      .toFile(finalPath);
+  } catch (err) {
+    console.log(`Error with ${imagePath}: ${err.message}`);
+    if (fs.existsSync(finalPath)) {
+      fs.unlinkSync(finalPath);
+    }
+  }
+  return Promise.resolve();
+};
+
+//
+// Resized images
+//
 const resizeDimensions = {
   small: { width: 512, height: 384 },
   medium: { width: 1024, height: 768 },
@@ -185,12 +217,19 @@ class PhotoLibrary {
   private photosRootPath: any;
   private thumbnailsRootPath: any;
   private albumsRootPath: any;
+  private normalsRootPath: string;
   private _photos: any;
   private _albums: any;
 
-  constructor(photosRootPath, thumbnailsRootPath, albumsRootPath) {
+  constructor(
+    photosRootPath,
+    thumbnailsRootPath,
+    normalsRootPath,
+    albumsRootPath
+  ) {
     this.photosRootPath = photosRootPath;
     this.thumbnailsRootPath = thumbnailsRootPath;
+    this.normalsRootPath = normalsRootPath;
     this.albumsRootPath = albumsRootPath;
 
     this._photos = null;
@@ -217,13 +256,20 @@ class PhotoLibrary {
     );
 
     console.log(`Found ${this.photos.length} photos, generating thumbnails...`);
-
     await Promise.all(
       this.photos.map((p) =>
         generateThumbnailFile(this.photosRootPath, this.thumbnailsRootPath, p)
       )
     );
     console.log("Thumbnails generated");
+
+    console.log(`Found ${this.photos.length} photos, generating normals...`);
+    await Promise.all(
+      this.photos.map((p) =>
+        generateNormalFile(this.photosRootPath, this.normalsRootPath, p)
+      )
+    );
+    console.log("Normals generated");
 
     console.log("Loading albums...");
     const albumFiles = await getFiles(this.albumsRootPath);
@@ -280,6 +326,12 @@ class PhotoLibrary {
               this.thumbnailsRootPath,
               p
             )
+          )
+        );
+
+        await Promise.all(
+          addedPhotos.map((p) =>
+            generateNormalFile(this.photosRootPath, this.normalsRootPath, p)
           )
         );
       });
@@ -382,11 +434,13 @@ class PhotoLibrary {
 const loadApplicationState = async (
   photosRootPath,
   thumbnailsRootPath,
+  normalsRootPath,
   albumsRootPath
 ) => {
   const library = new PhotoLibrary(
     photosRootPath,
     thumbnailsRootPath,
+    normalsRootPath,
     albumsRootPath
   );
   await library.init();
@@ -397,6 +451,7 @@ const loadApplicationState = async (
     albumsRootPath,
     photosRootPath,
     thumbnailsRootPath,
+    normalsRootPath,
   });
 };
 
@@ -410,6 +465,8 @@ const buildApplication = (
   app.use("/photos", express.static(photosRootPath));
 
   app.use("/thumbnails", express.static(thumbnailsRootPath));
+
+  app.use("/normals", express.static(normalsRootPath));
 
   app.get(
     "/resized/:size(small|medium|large)/:year(\\d{4,4})/:month(\\d{2,2})/:day(\\d{2,2})/:filename.:extension",
@@ -546,13 +603,19 @@ const buildApplication = (
 //
 const photosRootPath = path.resolve(process.env.PHOTOS_ROOT_PATH);
 const thumbnailsRootPath = path.resolve(process.env.THUMBNAILS_ROOT_PATH);
+const normalsRootPath = path.resolve(process.env.NORMALS_ROOT_PATH);
 const albumsRootPath = path.resolve(process.env.ALBUMS_ROOT_PATH);
 const PORT = process.env.PORT || 3001;
 
 //
 // Bootstrap the application
 //
-loadApplicationState(photosRootPath, thumbnailsRootPath, albumsRootPath)
+loadApplicationState(
+  photosRootPath,
+  thumbnailsRootPath,
+  normalsRootPath,
+  albumsRootPath
+)
   .then((state) => {
     const app = express();
     app.use(express.json());

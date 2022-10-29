@@ -40,6 +40,7 @@ EXPOSE 3000
 
 ENV PHOTOS_ROOT_PATH /photos/
 ENV THUMBNAILS_ROOT_PATH /thumbnails/
+ENV NORMALS_ROOT_PATH /normals/
 ENV ALBUMS_ROOT_PATH /albums/
 
 CMD ["yarn", "start"]

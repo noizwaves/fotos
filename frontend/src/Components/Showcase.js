@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 
-import { PHOTOS_ROOT, SMALL_ROOT, MEDIUM_ROOT, LARGE_ROOT } from "../Constants";
+import {
+  PHOTOS_ROOT,
+  SMALL_ROOT,
+  MEDIUM_ROOT,
+  LARGE_ROOT,
+  NORMALS_ROOT,
+} from "../Constants";
 
 const Showcase = ({ selected, onUnselect, onNext, onPrevious }) => {
   useEffect(() => {
@@ -32,7 +38,7 @@ const Showcase = ({ selected, onUnselect, onNext, onPrevious }) => {
 
   return (
     <div className="showcase" onClick={onUnselect}>
-      <img src={`${PHOTOS_ROOT}/${selected.path}`} alt={selected.name} />
+      <img src={`${NORMALS_ROOT}/${selected.path}`} alt={selected.name} />
       <div className="links">
         <a
           href={`${SMALL_ROOT}/${selected.path}`}

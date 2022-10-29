@@ -4,4 +4,5 @@ node_modules/
 /backend/.envrc*
 /backend/dist/
 /fixtures/thumbnails/*
+/fixtures/normals/*
 /fixtures/albums/*

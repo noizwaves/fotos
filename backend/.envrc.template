@@ -1,3 +1,4 @@
 export PHOTOS_ROOT_PATH=../fixtures/photos/
 export THUMBNAILS_ROOT_PATH=../fixtures/thumbnails/
+export NORMALS_ROOT_PATH=../fixtures/normals/
 export ALBUMS_ROOT_PATH=../fixtures/albums/
