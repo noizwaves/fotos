@@ -38,7 +38,7 @@ RUN yarn install --cache-folder /tmp/yarn-cache && rm -rf /tmp/yarn-cache
 ENV PORT 3000
 EXPOSE 3000
 
-ENV PHOTOS_ROOT_PATH /photos/
+ENV ORIGINALS_ROOT_PATH /originals/
 ENV THUMBNAILS_ROOT_PATH /thumbnails/
 ENV NORMALS_ROOT_PATH /normals/
 ENV ALBUMS_ROOT_PATH /albums/

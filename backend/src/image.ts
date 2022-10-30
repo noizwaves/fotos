@@ -11,7 +11,7 @@ const getThumbnailAbsolutePath = (thumbnailsRootPath, photo) => {
 };
 
 export const generateThumbnailFile = async (
-  photosRootPath,
+  originalsRootPath,
   thumbnailsRootPath,
   photo
 ) => {
@@ -22,7 +22,7 @@ export const generateThumbnailFile = async (
 
   await mkdir(path.dirname(finalPath), { recursive: true });
 
-  const imagePath = path.join(photosRootPath, photo.relativePath);
+  const imagePath = path.join(originalsRootPath, photo.relativePath);
 
   try {
     await sharp(imagePath)
@@ -45,7 +45,7 @@ const getNormalAbsolutePath = (normalsRootPath, photo) => {
 };
 
 export const generateNormalFile = async (
-  photosRootPath,
+  originalsRootPath,
   normalsRootPath,
   photo
 ) => {
@@ -56,7 +56,7 @@ export const generateNormalFile = async (
 
   await mkdir(path.dirname(finalPath), { recursive: true });
 
-  const imagePath = path.join(photosRootPath, photo.relativePath);
+  const imagePath = path.join(originalsRootPath, photo.relativePath);
 
   try {
     await sharp(imagePath)
@@ -81,8 +81,8 @@ const resizeDimensions = {
   large: { width: 2048, height: 1536 },
 };
 
-export const generateResizedImage = async (photosRootPath, size, photo) => {
-  const imagePath = path.join(photosRootPath, photo.relativePath);
+export const generateResizedImage = async (originalsRootPath, size, photo) => {
+  const imagePath = path.join(originalsRootPath, photo.relativePath);
   const { width, height } = resizeDimensions[size];
 
   return sharp(imagePath)

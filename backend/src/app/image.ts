@@ -4,21 +4,21 @@ import { PhotoLibrary } from "../model/photolibrary";
 const express = require("express");
 
 export type ImageAppParams = {
-  photosRootPath: string;
+  originalsRootPath: string;
   thumbnailsRootPath: string;
   normalsRootPath: string;
   library: PhotoLibrary;
 };
 
 export const imageApp = ({
-  photosRootPath,
+  originalsRootPath,
   thumbnailsRootPath,
   normalsRootPath,
   library,
 }: ImageAppParams) => {
   const router = express.Router();
 
-  router.use("/photos", express.static(photosRootPath));
+  router.use("/originals", express.static(originalsRootPath));
 
   router.use("/thumbnails", express.static(thumbnailsRootPath));
 
@@ -38,7 +38,7 @@ export const imageApp = ({
       if (matchingPhoto.length === 0) {
         res.status(404).end();
       } else {
-        generateResizedImage(photosRootPath, size, matchingPhoto[0])
+        generateResizedImage(originalsRootPath, size, matchingPhoto[0])
           .then((resized) => {
             res.type(extension).send(resized).end();
           })

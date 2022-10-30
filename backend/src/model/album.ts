@@ -32,9 +32,9 @@ export class Album {
     this.galleryOptions = ensureNull(galleryOptions);
   }
 
-  verifyContents(photosRootPath) {
+  verifyContents(originalsRootPath) {
     this.relativePhotoPaths.forEach((p) => {
-      const absPath = path.join(photosRootPath, p);
+      const absPath = path.join(originalsRootPath, p);
       if (!fs.existsSync(absPath)) {
         console.log(`Error in Album ${this.id}: Cannot find ${p}`);
       }

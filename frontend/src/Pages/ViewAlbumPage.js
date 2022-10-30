@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { DateTime } from "luxon";
 import { Link, useParams } from "react-router-dom";
 
-import { THUMBNAILS_ROOT, PHOTOS_ROOT } from "../Constants";
+import { THUMBNAILS_ROOT, ORIGINALS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
 import Showcase from "../Components/Showcase";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
@@ -40,7 +40,7 @@ const VerticalStripeContents = ({ photos, setSelected }) => {
   return (
     <div className={`vertical-strips vertical-strips-${numStripes}`}>
       {photos.map((photo, k) => {
-        const photosSrc = `${PHOTOS_ROOT}/${photo.path}`;
+        const photosSrc = `${ORIGINALS_ROOT}/${photo.path}`;
         const style = {
           backgroundImage: `url('${photosSrc}')`,
         };

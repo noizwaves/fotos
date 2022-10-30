@@ -8,7 +8,7 @@ const fs = require("fs");
 const chokidar = require("chokidar");
 
 export class PhotoLibrary {
-  private photosRootPath: any;
+  private originalsRootPath: any;
   private thumbnailsRootPath: any;
   private albumsRootPath: any;
   private normalsRootPath: string;
@@ -16,12 +16,12 @@ export class PhotoLibrary {
   private _albums: any;
 
   constructor(
-    photosRootPath,
+    originalsRootPath,
     thumbnailsRootPath,
     normalsRootPath,
     albumsRootPath
   ) {
-    this.photosRootPath = photosRootPath;
+    this.originalsRootPath = originalsRootPath;
     this.thumbnailsRootPath = thumbnailsRootPath;
     this.normalsRootPath = normalsRootPath;
     this.albumsRootPath = albumsRootPath;
@@ -39,10 +39,10 @@ export class PhotoLibrary {
   }
 
   async init() {
-    const files = await getFiles(this.photosRootPath);
+    const files = await getFiles(this.originalsRootPath);
 
     this._photos = files
-      .map((absPath) => relative(this.photosRootPath, absPath))
+      .map((absPath) => relative(this.originalsRootPath, absPath))
       .filter((path) => PHOTO_REGEX.test(path))
       .map((path) => new Photo(path));
     this._photos.sort((p1, p2) =>
@@ -52,7 +52,11 @@ export class PhotoLibrary {
     console.log(`Found ${this.photos.length} photos, generating thumbnails...`);
     await Promise.all(
       this.photos.map((p) =>
-        generateThumbnailFile(this.photosRootPath, this.thumbnailsRootPath, p)
+        generateThumbnailFile(
+          this.originalsRootPath,
+          this.thumbnailsRootPath,
+          p
+        )
       )
     );
     console.log("Thumbnails generated");
@@ -60,7 +64,7 @@ export class PhotoLibrary {
     console.log(`Found ${this.photos.length} photos, generating normals...`);
     await Promise.all(
       this.photos.map((p) =>
-        generateNormalFile(this.photosRootPath, this.normalsRootPath, p)
+        generateNormalFile(this.originalsRootPath, this.normalsRootPath, p)
       )
     );
     console.log("Normals generated");
@@ -92,7 +96,7 @@ export class PhotoLibrary {
 
   startWatch() {
     chokidar
-      .watch(this.photosRootPath, {
+      .watch(this.originalsRootPath, {
         ignoreInitial: true,
         usePolling: false,
         interval: 5000,
@@ -100,7 +104,7 @@ export class PhotoLibrary {
       .on("add", async (path) => {
         console.log(`Detected new file: ${path}`);
         const addedPhotos = [path]
-          .map((absPath) => relative(this.photosRootPath, absPath))
+          .map((absPath) => relative(this.originalsRootPath, absPath))
           .filter((path) => PHOTO_REGEX.test(path))
           .map((path) => new Photo(path));
 
@@ -116,7 +120,7 @@ export class PhotoLibrary {
         await Promise.all(
           addedPhotos.map((p) =>
             generateThumbnailFile(
-              this.photosRootPath,
+              this.originalsRootPath,
               this.thumbnailsRootPath,
               p
             )
@@ -125,7 +129,7 @@ export class PhotoLibrary {
 
         await Promise.all(
           addedPhotos.map((p) =>
-            generateNormalFile(this.photosRootPath, this.normalsRootPath, p)
+            generateNormalFile(this.originalsRootPath, this.normalsRootPath, p)
           )
         );
       });

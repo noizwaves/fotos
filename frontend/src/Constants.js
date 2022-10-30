@@ -3,7 +3,7 @@ export const MIN_COLUMNS = 2;
 
 export const IMAGES_ROOT = "/images";
 
-export const PHOTOS_ROOT = `${IMAGES_ROOT}/photos`;
+export const ORIGINALS_ROOT = `${IMAGES_ROOT}/originals`;
 export const THUMBNAILS_ROOT = `${IMAGES_ROOT}/thumbnails`;
 export const NORMALS_ROOT = `${IMAGES_ROOT}/normals`;
 

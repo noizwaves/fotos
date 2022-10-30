@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import {
-  PHOTOS_ROOT,
+  ORIGINALS_ROOT,
   SMALL_ROOT,
   MEDIUM_ROOT,
   LARGE_ROOT,
@@ -68,7 +68,7 @@ const Showcase = ({ selected, onUnselect, onNext, onPrevious }) => {
         </a>{" "}
         |{" "}
         <a
-          href={`${PHOTOS_ROOT}/${selected.path}`}
+          href={`${ORIGINALS_ROOT}/${selected.path}`}
           onClick={preventDefault}
           target="_blank"
           rel="noopener noreferrer"

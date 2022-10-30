@@ -8,7 +8,7 @@ const express = require("express");
 const path = require("path");
 
 type Config = {
-  photosRootPath: string;
+  originalsRootPath: string;
   thumbnailsRootPath: string;
   normalsRootPath: string;
   albumsRootPath: string;
@@ -22,7 +22,7 @@ type State = {
 
 const buildConfig = (): Config => {
   return {
-    photosRootPath: path.resolve(process.env.PHOTOS_ROOT_PATH),
+    originalsRootPath: path.resolve(process.env.ORIGINALS_ROOT_PATH),
     thumbnailsRootPath: path.resolve(process.env.THUMBNAILS_ROOT_PATH),
     normalsRootPath: path.resolve(process.env.NORMALS_ROOT_PATH),
     albumsRootPath: path.resolve(process.env.ALBUMS_ROOT_PATH),
@@ -32,7 +32,7 @@ const buildConfig = (): Config => {
 
 const buildState = async (config: Config): Promise<State> => {
   const library = new PhotoLibrary(
-    config.photosRootPath,
+    config.originalsRootPath,
     config.thumbnailsRootPath,
     config.normalsRootPath,
     config.albumsRootPath
