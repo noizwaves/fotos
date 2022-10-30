@@ -12,7 +12,7 @@ export type ApiAlbumAppParams = {
 export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
   const router = express.Router();
 
-  router.get("/api/albums", (req, res) => {
+  router.get("/", (req, res) => {
     const albumsJson = library.albums.map((a) => {
       return {
         id: a.id,
@@ -39,7 +39,7 @@ export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
     return true;
   };
 
-  router.post("/api/albums", async (req, res) => {
+  router.post("/", async (req, res) => {
     const path = req.body.path.trim();
     const name = req.body.name.trim();
 
@@ -59,7 +59,7 @@ export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
     res.send(JSON.stringify(album));
   });
 
-  router.get("/api/albums/:id", async (req, res) => {
+  router.get("/:id", async (req, res) => {
     const id = req.params.id;
     const album = library.albums.find((a) => a.id === id);
 
@@ -81,7 +81,7 @@ export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
     res.send(JSON.stringify(body));
   });
 
-  router.patch("/api/albums/:id", async (req, res) => {
+  router.patch("/:id", async (req, res) => {
     // TODO: Validate photos exist
     // TODO: update json
     // update library
@@ -92,7 +92,7 @@ export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
     res.send(JSON.stringify(album));
   });
 
-  router.delete("/api/albums/:id", async (req, res) => {
+  router.delete("/:id", async (req, res) => {
     library.deleteAlbum(req.params.id);
 
     res.setHeader("Content-Type", "application/json");
