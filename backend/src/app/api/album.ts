@@ -1,8 +1,15 @@
+import { PhotoLibrary } from "../../model/photolibrary";
+
 const express = require("express");
 const { existsSync } = require("fs");
 const path = require("path");
 
-export const apiAlbumApp = ({ albumsRootPath, library }) => {
+export type ApiAlbumAppParams = {
+  albumsRootPath: string;
+  library: PhotoLibrary;
+};
+
+export const apiAlbumApp = ({ albumsRootPath, library }: ApiAlbumAppParams) => {
   const router = express.Router();
 
   router.get("/api/albums", (req, res) => {

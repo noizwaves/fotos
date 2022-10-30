@@ -7,52 +7,52 @@ import { apiAlbumApp } from "./app/api/album";
 const express = require("express");
 const path = require("path");
 
-//
-// Application state
-//
-const loadApplicationState = async (
-  photosRootPath,
-  thumbnailsRootPath,
-  normalsRootPath,
-  albumsRootPath
-) => {
+type Config = {
+  photosRootPath: string;
+  thumbnailsRootPath: string;
+  normalsRootPath: string;
+  albumsRootPath: string;
+
+  port: number;
+};
+
+type State = {
+  library: PhotoLibrary;
+};
+
+const buildConfig = (): Config => {
+  return {
+    photosRootPath: path.resolve(process.env.PHOTOS_ROOT_PATH),
+    thumbnailsRootPath: path.resolve(process.env.THUMBNAILS_ROOT_PATH),
+    normalsRootPath: path.resolve(process.env.NORMALS_ROOT_PATH),
+    albumsRootPath: path.resolve(process.env.ALBUMS_ROOT_PATH),
+    port: (process.env.PORT && parseInt(process.env.PORT)) || 3001,
+  };
+};
+
+const buildState = async (config: Config): Promise<State> => {
   const library = new PhotoLibrary(
-    photosRootPath,
-    thumbnailsRootPath,
-    normalsRootPath,
-    albumsRootPath
+    config.photosRootPath,
+    config.thumbnailsRootPath,
+    config.normalsRootPath,
+    config.albumsRootPath
   );
   await library.init();
   library.startWatch();
 
-  return Promise.resolve({
+  return {
     library,
-    albumsRootPath,
-    photosRootPath,
-    thumbnailsRootPath,
-    normalsRootPath,
-  });
+  };
 };
 
-//
-// Application
-//
-const buildApp = ({
-  albumsRootPath,
-  photosRootPath,
-  normalsRootPath,
-  thumbnailsRootPath,
-  library,
-}) => {
+const buildApp = (config: Config, state: State) => {
+  const { library } = state;
   const app = express();
   app.use(express.json());
 
-  app.use(
-    "/",
-    imageApp({ photosRootPath, normalsRootPath, thumbnailsRootPath, library })
-  );
-  app.use("/api/photos", apiPhotoApp({ library }));
-  app.use("/api/albums", apiAlbumApp({ albumsRootPath, library }));
+  app.use("/", imageApp({ ...config, library }));
+  app.use("/api/photos", apiPhotoApp({ ...config, library }));
+  app.use("/api/albums", apiAlbumApp({ ...config, library }));
 
   app.use("/", express.static(path.join(__dirname, "../../frontend/build/")));
   app.use(
@@ -64,30 +64,16 @@ const buildApp = ({
 };
 
 //
-// Configuration
-//
-const photosRootPath = path.resolve(process.env.PHOTOS_ROOT_PATH);
-const thumbnailsRootPath = path.resolve(process.env.THUMBNAILS_ROOT_PATH);
-const normalsRootPath = path.resolve(process.env.NORMALS_ROOT_PATH);
-const albumsRootPath = path.resolve(process.env.ALBUMS_ROOT_PATH);
-const PORT = process.env.PORT || 3001;
-
-//
 // Bootstrap the application
 //
-loadApplicationState(
-  photosRootPath,
-  thumbnailsRootPath,
-  normalsRootPath,
-  albumsRootPath
-)
-  .then((state) => {
-    const app = buildApp(state);
+const bootstrap = async () => {
+  const config = buildConfig();
+  const state = await buildState(config);
+  const app = buildApp(config, state);
 
-    app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log(`ERROR loading application: ${err.message}`);
+  app.listen(config.port, () => {
+    console.log(`Server is listening on port ${config.port}`);
   });
+};
+
+bootstrap().then(() => {});

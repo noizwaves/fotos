@@ -1,13 +1,21 @@
 import { generateResizedImage } from "../image";
+import { PhotoLibrary } from "../model/photolibrary";
 
 const express = require("express");
+
+export type ImageAppParams = {
+  photosRootPath: string;
+  thumbnailsRootPath: string;
+  normalsRootPath: string;
+  library: PhotoLibrary;
+};
 
 export const imageApp = ({
   photosRootPath,
   thumbnailsRootPath,
   normalsRootPath,
   library,
-}) => {
+}: ImageAppParams) => {
   const router = express.Router();
 
   router.use("/photos", express.static(photosRootPath));
