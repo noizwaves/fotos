@@ -50,7 +50,7 @@ const buildApp = (config: Config, state: State) => {
   const app = express();
   app.use(express.json());
 
-  app.use("/", imageApp({ ...config, library }));
+  app.use("/images", imageApp({ ...config, library }));
   app.use("/api/photos", apiPhotoApp({ ...config, library }));
   app.use("/api/albums", apiAlbumApp({ ...config, library }));
 
