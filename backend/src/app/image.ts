@@ -2,17 +2,21 @@ import { generateResizedImage } from "../image";
 
 const express = require("express");
 
-export const imageApp = (
-  { photosRootPath, thumbnailsRootPath, normalsRootPath, library },
-  app
-) => {
-  app.use("/photos", express.static(photosRootPath));
+export const imageApp = ({
+  photosRootPath,
+  thumbnailsRootPath,
+  normalsRootPath,
+  library,
+}) => {
+  const router = express.Router();
 
-  app.use("/thumbnails", express.static(thumbnailsRootPath));
+  router.use("/photos", express.static(photosRootPath));
 
-  app.use("/normals", express.static(normalsRootPath));
+  router.use("/thumbnails", express.static(thumbnailsRootPath));
 
-  app.get(
+  router.use("/normals", express.static(normalsRootPath));
+
+  router.get(
     "/resized/:size(small|medium|large)/:year(\\d{4,4})/:month(\\d{2,2})/:day(\\d{2,2})/:filename.:extension",
     (req, res) => {
       const { size, year, month, day, filename, extension } = req.params;
@@ -37,4 +41,6 @@ export const imageApp = (
       }
     }
   );
+
+  return router;
 };

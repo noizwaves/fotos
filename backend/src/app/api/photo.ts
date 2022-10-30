@@ -1,5 +1,9 @@
-export const apiPhotoApp = ({ library }, app) => {
-  app.get("/api/photos", (req, res) => {
+const express = require("express");
+
+export const apiPhotoApp = ({ library }) => {
+  const router = express.Router();
+
+  router.get("/", (req, res) => {
     const photoJson = library.photos.map((p) => {
       return p.relativePath;
     });
@@ -7,4 +11,6 @@ export const apiPhotoApp = ({ library }, app) => {
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify(photoJson));
   });
+
+  return router;
 };

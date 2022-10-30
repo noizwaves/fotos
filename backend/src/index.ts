@@ -37,28 +37,30 @@ const loadApplicationState = async (
 //
 // Application
 //
-const buildApplication = (
-  {
-    albumsRootPath,
-    photosRootPath,
-    normalsRootPath,
-    thumbnailsRootPath,
-    library,
-  },
-  app
-) => {
-  imageApp(
-    { photosRootPath, normalsRootPath, thumbnailsRootPath, library },
-    app
+const buildApp = ({
+  albumsRootPath,
+  photosRootPath,
+  normalsRootPath,
+  thumbnailsRootPath,
+  library,
+}) => {
+  const app = express();
+  app.use(express.json());
+
+  app.use(
+    "/",
+    imageApp({ photosRootPath, normalsRootPath, thumbnailsRootPath, library })
   );
-  apiPhotoApp({ library }, app);
-  apiAlbumApp({ albumsRootPath, library }, app);
+  app.use("/api/photos", apiPhotoApp({ library }));
+  app.use("/api/albums", apiAlbumApp({ albumsRootPath, library }));
 
   app.use("/", express.static(path.join(__dirname, "../../frontend/build/")));
   app.use(
     "/*",
     express.static(path.join(__dirname, "../../frontend/build/index.html"))
   );
+
+  return app;
 };
 
 //
@@ -80,10 +82,7 @@ loadApplicationState(
   albumsRootPath
 )
   .then((state) => {
-    const app = express();
-    app.use(express.json());
-
-    buildApplication(state, app);
+    const app = buildApp(state);
 
     app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
