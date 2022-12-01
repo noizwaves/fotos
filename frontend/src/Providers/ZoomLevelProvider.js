@@ -3,10 +3,27 @@ import { CellMeasurerCache } from "react-virtualized";
 
 import { MIN_COLUMNS, MAX_COLUMNS } from "../Constants";
 
+const DEFAULT_COLUMNS = 6;
+
+const initialColumns = () => {
+  if (typeof window === "undefined") {
+    return DEFAULT_COLUMNS;
+  }
+
+  const windowWidth = window.innerWidth;
+  if (windowWidth <= 480) {
+    return 4;
+  } else if (windowWidth <= 800) {
+    return 5;
+  } else {
+    return DEFAULT_COLUMNS;
+  }
+};
+
 export const ZoomLevelContext = createContext();
 
 export const ZoomLevelProvider = ({ children }) => {
-  const [columns, setColumns] = useState(6);
+  const [columns, setColumns] = useState(initialColumns());
 
   // FIX: put CellMeasurerCache here until find better place for it
   const cache = useRef(
