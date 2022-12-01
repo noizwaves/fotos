@@ -15,8 +15,10 @@ const initialColumns = () => {
     return 4;
   } else if (windowWidth <= 800) {
     return 5;
+  } else if (windowWidth <= 1280) {
+    return 6;
   } else {
-    return DEFAULT_COLUMNS;
+    return 8;
   }
 };
 
