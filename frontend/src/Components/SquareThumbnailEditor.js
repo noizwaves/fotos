@@ -4,7 +4,7 @@ import { useDraggable, useDroppable, DndContext } from "@dnd-kit/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
-import { THUMBNAILS_ROOT } from "../Constants";
+import Thumbnail from "./Thumbnail";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 
 const DraggablePhoto = ({ photo }) => {
@@ -20,7 +20,6 @@ const DraggablePhoto = ({ photo }) => {
       }
     : undefined;
 
-  const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`;
   return (
     <div
       className="photo"
@@ -29,7 +28,7 @@ const DraggablePhoto = ({ photo }) => {
       {...listeners}
       {...attributes}
     >
-      <img src={photosSrc} alt={photo.path} />
+      <Thumbnail photo={photo} renderPhoto={true} />
     </div>
   );
 };
@@ -82,6 +81,7 @@ const SquareThumbnailEditor = ({ photos, onMove, onRemove }) => {
       >
         {photos.map((photo, k) => (
           <DroppableFrame key={k} index={k}>
+            <DraggablePhoto key={k} photo={photo} />
             <div className="hover-actions">
               <span
                 className="remove-from-album"
@@ -90,7 +90,6 @@ const SquareThumbnailEditor = ({ photos, onMove, onRemove }) => {
                 <FontAwesomeIcon icon={faCircleXmark} />
               </span>
             </div>
-            <DraggablePhoto key={k} photo={photo} />
           </DroppableFrame>
         ))}
       </div>

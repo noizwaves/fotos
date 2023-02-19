@@ -3,19 +3,31 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 
+const THUMBNAILS_V2_SIZES = [
+  { width: 200 },
+  { width: 400 },
+  { width: 600 },
+  { width: 800 },
+];
+
 //
 // Thumbnail sized images
 //
-const getThumbnailAbsolutePath = (thumbnailsRootPath, photo) => {
-  return path.join(thumbnailsRootPath, photo.relativePath);
+const getThumbnailAbsolutePath = (thumbnailsV2RootPath, photo, width) => {
+  return path.join(thumbnailsV2RootPath, `${width}`, photo.relativePath);
 };
 
-export const generateThumbnailFile = async (
+export const generateThumbnailSizedFile = async (
   originalsRootPath,
-  thumbnailsRootPath,
-  photo
+  thumbnailsV2RootPath,
+  photo,
+  width
 ) => {
-  const finalPath = getThumbnailAbsolutePath(thumbnailsRootPath, photo);
+  const finalPath = getThumbnailAbsolutePath(
+    thumbnailsV2RootPath,
+    photo,
+    width
+  );
   if (fs.existsSync(finalPath)) {
     return Promise.resolve();
   }
@@ -26,16 +38,34 @@ export const generateThumbnailFile = async (
 
   try {
     await sharp(imagePath)
-      .resize(256, 256, { fit: "outside", withoutEnlargement: true })
+      .jpeg({ quality: 50, progressive: true })
+      .resize(width, width, { fit: "outside", withoutEnlargement: true })
       .withMetadata()
       .toFile(finalPath);
   } catch (err) {
-    console.log(`Error with ${imagePath}: ${err.message}`);
+    console.log(`Error with ${imagePath} and width ${width}: ${err.message}`);
     if (fs.existsSync(finalPath)) {
       fs.unlinkSync(finalPath);
     }
   }
   return Promise.resolve();
+};
+
+export const generateThumbnailFiles = async (
+  originalsRootPath,
+  thumbnailsV2RootPath,
+  photo
+) => {
+  return Promise.all(
+    THUMBNAILS_V2_SIZES.map(({ width }) =>
+      generateThumbnailSizedFile(
+        originalsRootPath,
+        thumbnailsV2RootPath,
+        photo,
+        width
+      )
+    )
+  );
 };
 //
 // Normal sized images

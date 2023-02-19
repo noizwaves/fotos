@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   fotos:
@@ -14,7 +14,7 @@ services:
       - TZ=America/Denver
       - PORT=3000
     volumes:
-      - ~/workspace/fotos/thumbnails:/thumbnails:rw
+      - ~/workspace/fotos/thumbnails_v2:/thumbnails_v2:rw
       - ~/Pictures/iCloud_Photos:/photos:ro
     restart: unless-stopped
 
@@ -29,7 +29,7 @@ services:
     environment:
       - TZ=America/Denver
     volumes:
-      - ~/workspace/fotos/thumbnails:/usr/share/nginx/html/thumbnails:ro
+      - ~/workspace/fotos/thumbnails_v2:/usr/share/nginx/html/thumbnails_v2:ro
       - ~/Pictures/iCloud_Photos:/usr/share/nginx/html/photos:ro
       - ./fotos.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped

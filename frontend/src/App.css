@@ -133,6 +133,60 @@ h2 .actions {
     object-fit: cover;
 }
 
+/* width based thumbnail selection */
+
+.gallery .frame .photo {
+    container-type: inline-size;
+}
+
+@container (max-width: 200px) {
+    .gallery .frame .photo .img-200 {
+        display: block;
+    }
+
+    .gallery .frame .photo .img-400,
+    .gallery .frame .photo .img-600,
+    .gallery .frame .photo .img-800 {
+        display: none;
+    }
+}
+
+@container (min-width: 200px) and (max-width: 400px) {
+    .gallery .frame .photo .img-400 {
+        display: block;
+    }
+
+    .gallery .frame .photo .img-200,
+    .gallery .frame .photo .img-600,
+    .gallery .frame .photo .img-800 {
+        display: none;
+    }
+}
+
+@container (min-width: 400px) and (max-width: 600px) {
+    .gallery .frame .photo .img-600 {
+        display: block;
+    }
+
+    .gallery .frame .photo .img-200,
+    .gallery .frame .photo .img-400,
+    .gallery .frame .photo .img-800 {
+        display: none;
+    }
+}
+
+@container (min-width: 600px) {
+    .gallery .frame .photo .img-800 {
+        display: block;
+    }
+
+    .gallery .frame .photo .img-200,
+    .gallery .frame .photo .img-400,
+    .gallery .frame .photo .img-600 {
+        display: none;
+    }
+}
+
 /* editing */
 .gallery.editing .frame .photo {
     width: 90%;

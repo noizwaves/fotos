@@ -1,4 +1,4 @@
-import { generateNormalFile, generateThumbnailFile } from "../image";
+import { generateNormalFile, generateThumbnailFiles } from "../image";
 import { getFiles } from "../utils";
 import { Album, ALBUM_REGEX } from "./album";
 import { Photo, PHOTO_REGEX } from "./photo";
@@ -9,7 +9,7 @@ const chokidar = require("chokidar");
 
 export class PhotoLibrary {
   private originalsRootPath: any;
-  private thumbnailsRootPath: any;
+  private thumbnailsV2RootPath: any;
   private albumsRootPath: any;
   private normalsRootPath: string;
   private _photos: any;
@@ -17,12 +17,12 @@ export class PhotoLibrary {
 
   constructor(
     originalsRootPath,
-    thumbnailsRootPath,
+    thumbnailsV2RootPath,
     normalsRootPath,
     albumsRootPath
   ) {
     this.originalsRootPath = originalsRootPath;
-    this.thumbnailsRootPath = thumbnailsRootPath;
+    this.thumbnailsV2RootPath = thumbnailsV2RootPath;
     this.normalsRootPath = normalsRootPath;
     this.albumsRootPath = albumsRootPath;
 
@@ -52,9 +52,9 @@ export class PhotoLibrary {
     console.log(`Found ${this.photos.length} photos, generating thumbnails...`);
     await Promise.all(
       this.photos.map((p) =>
-        generateThumbnailFile(
+        generateThumbnailFiles(
           this.originalsRootPath,
-          this.thumbnailsRootPath,
+          this.thumbnailsV2RootPath,
           p
         )
       )
@@ -119,9 +119,9 @@ export class PhotoLibrary {
 
         await Promise.all(
           addedPhotos.map((p) =>
-            generateThumbnailFile(
+            generateThumbnailFiles(
               this.originalsRootPath,
-              this.thumbnailsRootPath,
+              this.thumbnailsV2RootPath,
               p
             )
           )

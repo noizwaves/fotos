@@ -2,9 +2,10 @@ import { useContext, useState, useEffect } from "react";
 import { DateTime } from "luxon";
 import { Link, useParams } from "react-router-dom";
 
-import { THUMBNAILS_ROOT, ORIGINALS_ROOT } from "../Constants";
+import { ORIGINALS_ROOT } from "../Constants";
 import { floorToWeek, groupBy } from "../Utilities";
 import Showcase from "../Components/Showcase";
+import Thumbnail from "../Components/Thumbnail";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 import { fetchAlbum } from "../API";
 
@@ -12,20 +13,17 @@ const SquareThumbnailContents = ({ photos, setSelected }) => {
   const { columns } = useContext(ZoomLevelContext);
   return (
     <div className={`gallery gallery-${columns}`}>
-      {photos.map((photo, k) => {
-        const photosSrc = `${THUMBNAILS_ROOT}/${photo.path}`;
-        return (
-          <div key={k} className="frame">
-            <div className="photo">
-              <img
-                src={photosSrc}
-                alt={photo.name}
-                onClick={() => setSelected(photo)}
-              />
-            </div>
+      {photos.map((photo, k) => (
+        <div key={k} className="frame">
+          <div className="photo">
+            <Thumbnail
+              photo={photo}
+              renderPhoto={true}
+              setSelected={setSelected}
+            />
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 };
@@ -93,11 +91,7 @@ const CalendarContents = ({ photos, setSelected }) => {
     const photoElem = !photo ? (
       <></>
     ) : (
-      <img
-        src={`${THUMBNAILS_ROOT}/${photo.path}`}
-        alt={photo.name}
-        onClick={() => setSelected(photo)}
-      />
+      <Thumbnail photo={photo} renderPhoto={true} setSelected={setSelected} />
     );
 
     const formattedDate = date.toFormat(formatStr);

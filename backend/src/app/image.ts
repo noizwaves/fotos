@@ -5,14 +5,14 @@ const express = require("express");
 
 export type ImageAppParams = {
   originalsRootPath: string;
-  thumbnailsRootPath: string;
+  thumbnailsV2RootPath: string;
   normalsRootPath: string;
   library: PhotoLibrary;
 };
 
 export const imageApp = ({
   originalsRootPath,
-  thumbnailsRootPath,
+  thumbnailsV2RootPath,
   normalsRootPath,
   library,
 }: ImageAppParams) => {
@@ -20,7 +20,7 @@ export const imageApp = ({
 
   router.use("/originals", express.static(originalsRootPath));
 
-  router.use("/thumbnails", express.static(thumbnailsRootPath));
+  router.use("/thumbnails_v2", express.static(thumbnailsV2RootPath));
 
   router.use("/normals", express.static(normalsRootPath));
 

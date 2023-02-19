@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 import Showcase from "../Components/Showcase";
-import { THUMBNAILS_ROOT } from "../Constants";
+import Thumbnail from "../Components/Thumbnail";
+
 import { PhotosContext } from "../Providers/PhotosProvider";
 import { ZoomLevelContext } from "../Providers/ZoomLevelProvider";
 import { CheckedContext } from "../Providers/CheckedProvider";
@@ -82,23 +83,20 @@ const StreamPhotosByDayPage = ({ list, galleryRef }) => {
       isScrolling
     );
     const photos = items.map((photo, k) => {
-      const photosSrc = renderPhoto
-        ? `${THUMBNAILS_ROOT}/${photo.path}`
-        : "/placeholder.png";
       const classNames = "frame" + (isChecked(photo) ? " checked" : "");
       return (
         <div className={classNames} key={`${index}-${k}`}>
+          <div className="photo">
+            <Thumbnail
+              photo={photo}
+              setSelected={setSelected}
+              renderPhoto={renderPhoto}
+            />
+          </div>
           <div className="hover-actions" onClick={() => toggleChecked(photo)}>
             <span className="check-action">
               <FontAwesomeIcon icon={faCircleCheck} />
             </span>
-          </div>
-          <div className="photo">
-            <img
-              src={photosSrc}
-              alt={photo.name}
-              onClick={() => setSelected(photo)}
-            />
           </div>
         </div>
       );

@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   fotos:
@@ -11,8 +11,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      ## Change `/path/to/thumbnails` to the directory you want to store generated thumbnails in
-      - /path/to/thumbnails:/thumbnails
+      ## Change `/path/to/thumbnails_v2` to the directory you want to store generated thumbnails in
+      - /path/to/thumbnails_v2:/thumbnails_v2
 
       ## Change `/path/to/photos` to the directory that contains your photos
       - /path/to/photos:/photos:ro
